@@ -1,7 +1,6 @@
 "use client"
 
-import { useAuth } from "@/features/auth/hooks/use-auth"
-import { Button } from "@/components/ui/button"
+import { LogoutButton } from "@/components/layout/logout-button"
 import {
   Card,
   CardHeader,
@@ -9,36 +8,32 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card"
-import { useRouter } from "next/navigation"
+import { useAuth } from "@/features/auth/hooks/use-auth"
 
 export default function UserPage() {
-  const { user, logout } = useAuth()
-  const router = useRouter()
-
-  const handleLogout = async () => {
-    await logout()
-    router.push("/login")
-  }
+  const { user } = useAuth()
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-8">
-      <Card className="w-full max-w-lg">
-        <CardHeader>
-          <CardTitle>User Dashboard</CardTitle>
-          <CardDescription>
-            Welcome to your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight">Dashboard</h2>
           <p className="text-sm text-muted-foreground">
-            Signed in as <strong>{user?.name}</strong> ({user?.email})
+            Welcome back, {user?.name}.
           </p>
-          <p className="text-xs text-muted-foreground">
-            Role: <span className="font-medium uppercase">{user?.role}</span>
+        </div>
+        <LogoutButton />
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Your account</CardTitle>
+          <CardDescription>Signed in as {user?.email}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            Your team and formations will be shown here soon.
           </p>
-          <Button onClick={handleLogout} variant="outline">
-            Sign Out
-          </Button>
         </CardContent>
       </Card>
     </div>

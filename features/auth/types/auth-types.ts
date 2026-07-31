@@ -7,6 +7,7 @@ export interface SessionUser {
   name: string
   email: string
   role: Role
+  avatar?: string | null
 }
 
 export interface LoginResponse {

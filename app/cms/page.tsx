@@ -1,7 +1,8 @@
 "use client"
 
-import { useAuth } from "@/features/auth/hooks/use-auth"
-import { Button } from "@/components/ui/button"
+import { Users, Shield, Trophy } from "lucide-react"
+
+import { LogoutButton } from "@/components/layout/logout-button"
 import {
   Card,
   CardHeader,
@@ -9,36 +10,57 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card"
-import { useRouter } from "next/navigation"
+
+const STATS = [
+  { label: "Teams", value: "—", icon: Shield },
+  { label: "Players", value: "—", icon: Users },
+  { label: "Formations", value: "—", icon: Trophy },
+]
 
 export default function CMSPage() {
-  const { user, logout } = useAuth()
-  const router = useRouter()
-
-  const handleLogout = async () => {
-    await logout()
-    router.push("/login")
-  }
-
   return (
-    <div className="flex min-h-screen items-center justify-center p-8">
-      <Card className="w-full max-w-lg">
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight">Dashboard</h2>
+          <p className="text-sm text-muted-foreground">
+            Welcome to the Futsal CMS Portal.
+          </p>
+        </div>
+        <LogoutButton />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        {STATS.map((stat) => {
+          const Icon = stat.icon
+          return (
+            <Card key={stat.label}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-sm font-medium">
+                  {stat.label}
+                </CardTitle>
+                <Icon className="size-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-semibold">{stat.value}</div>
+              </CardContent>
+            </Card>
+          )
+        })}
+      </div>
+
+      <Card>
         <CardHeader>
-          <CardTitle>CMS Dashboard</CardTitle>
+          <CardTitle>Getting started</CardTitle>
           <CardDescription>
-            Welcome to the admin control panel
+            Team and formation management will be available here soon.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent>
           <p className="text-sm text-muted-foreground">
-            Signed in as <strong>{user?.name}</strong> ({user?.email})
+            Use the sidebar to navigate between Dashboard, Team Management, and
+            Matches.
           </p>
-          <p className="text-xs text-muted-foreground">
-            Role: <span className="font-medium uppercase">{user?.role}</span>
-          </p>
-          <Button onClick={handleLogout} variant="outline">
-            Sign Out
-          </Button>
         </CardContent>
       </Card>
     </div>
