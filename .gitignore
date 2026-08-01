@@ -48,5 +48,5 @@ passwords.txt
 /.agents
 /.claude
 skills-lock.json
-/generated
+# /generated
 
