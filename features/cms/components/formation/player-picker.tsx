@@ -24,6 +24,8 @@ interface PlayerPickerProps {
   open: boolean
   roster: Player[]
   selectedPlayerId: number | null
+  /** Player ids already bound to other slots — these are disabled. */
+  excludedPlayerIds?: number[]
   onSelect: (playerId: number | null) => void
   onClose: () => void
 }
@@ -41,9 +43,11 @@ export function PlayerPicker({
   open,
   roster,
   selectedPlayerId,
+  excludedPlayerIds = [],
   onSelect,
   onClose,
 }: PlayerPickerProps) {
+  const excluded = new Set(excludedPlayerIds)
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
       <DialogContent className="max-w-md">
@@ -74,14 +78,21 @@ export function PlayerPicker({
           {roster.map((player) => {
             const photoUrl = resolveMediaUrl(player.photo)
             const isSelected = player.id === selectedPlayerId
+            const isExcluded = excluded.has(player.id) && !isSelected
             return (
               <button
                 key={player.id}
                 type="button"
+                disabled={isExcluded}
                 onClick={() => onSelect(player.id)}
+                aria-disabled={isExcluded}
                 className={
-                  "flex items-center gap-3 rounded-xl p-2 text-left transition hover:bg-muted " +
-                  (isSelected ? "bg-muted ring-1 ring-primary" : "")
+                  "flex items-center gap-3 rounded-xl p-2 text-left transition " +
+                  (isSelected
+                    ? "bg-muted ring-1 ring-primary"
+                    : isExcluded
+                      ? "cursor-not-allowed opacity-50"
+                      : "hover:bg-muted")
                 }
               >
                 <Avatar size="lg" className="size-10">
@@ -99,11 +110,15 @@ export function PlayerPicker({
                     {POSITION_LABELS[player.position]}
                   </div>
                 </div>
-                {isSelected && (
+                {isSelected ? (
                   <span className="text-xs font-medium text-primary">
                     Selected
                   </span>
-                )}
+                ) : isExcluded ? (
+                  <span className="text-xs text-muted-foreground">
+                    In lineup
+                  </span>
+                ) : null}
               </button>
             )
           })}

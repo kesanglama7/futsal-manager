@@ -73,6 +73,11 @@ export async function POST(
         position: parsed.data.position,
         photo: parsed.data.photo ?? null,
         teamId,
+        rating: parsed.data.rating,
+        pace: parsed.data.pace,
+        shooting: parsed.data.shooting,
+        passing: parsed.data.passing,
+        defending: parsed.data.defending,
       },
     })
 

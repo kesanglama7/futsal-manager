@@ -84,7 +84,7 @@ export function AppSidebar({ variant }: AppSidebarProps) {
                 <Shield className="size-4" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{title}</span>
+                <span className="truncate font-display text-base font-bold uppercase">{title}</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>

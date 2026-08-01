@@ -428,6 +428,9 @@ export function FormationEditor({
             ? (slots.find((s) => s.slotId === pickerSlot)?.playerId ?? null)
             : null
         }
+        excludedPlayerIds={slots
+          .filter((s) => s.slotId !== pickerSlot && s.playerId !== null)
+          .map((s) => s.playerId as number)}
         onSelect={(playerId) => pickerSlot && setSlotPlayer(pickerSlot, playerId)}
         onClose={() => setPickerSlot(null)}
       />

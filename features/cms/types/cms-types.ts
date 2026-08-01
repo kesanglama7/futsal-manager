@@ -1,4 +1,10 @@
-import type { FORMATION_TYPE, POSITION } from "@/generated/enums"
+import type {
+  FORMATION_TYPE,
+  MATCH_EVENT_TYPE,
+  MATCH_SIDE,
+  MATCH_STATUS,
+  POSITION,
+} from "@/generated/enums"
 
 export interface Team {
   id: number
@@ -6,6 +12,7 @@ export interface Team {
   logo: string | null
   createdAt: string
   updatedAt: string
+  roster?: Player[]
   _count?: {
     roster: number
     formations: number
@@ -21,6 +28,11 @@ export interface Player {
   teamId: number
   createdAt: string
   updatedAt: string
+  rating: number
+  pace: number
+  shooting: number
+  passing: number
+  defending: number
 }
 
 export interface FormationSlot {
@@ -39,4 +51,47 @@ export interface Formation {
   positions: FormationSlot[]
   createdAt: string
   updatedAt: string
+}
+
+export interface Match {
+  id: number
+  homeTeamId: number
+  awayTeamId: number
+  scheduledAt: string
+  venue: string | null
+  status: MATCH_STATUS
+  homeScore: number | null
+  awayScore: number | null
+  createdAt: string
+  updatedAt: string
+  homeTeam?: Team
+  awayTeam?: Team
+  matchTeams?: MatchTeam[]
+  events?: MatchEvent[]
+  _count?: { events: number }
+}
+
+export interface MatchTeam {
+  id: number
+  matchId: number
+  teamId: number
+  side: MATCH_SIDE
+  formationId: number | null
+  positions: FormationSlot[]
+  createdAt: string
+  updatedAt: string
+  team?: Team
+  formation?: Formation | null
+}
+
+export interface MatchEvent {
+  id: number
+  matchId: number
+  teamId: number
+  type: MATCH_EVENT_TYPE
+  minute: number
+  playerId: number | null
+  createdAt: string
+  team?: Team
+  player?: Player | null
 }

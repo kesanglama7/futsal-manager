@@ -94,7 +94,7 @@ export default function TeamFormationsPage() {
               <AvatarFallback>{teamInitials}</AvatarFallback>
             </Avatar>
             <div>
-              <h2 className="text-2xl font-semibold tracking-tight">
+              <h2 className="font-display text-3xl font-black uppercase tracking-tight">
                 {team?.name ?? "Formations"}
               </h2>
               <p className="flex items-center gap-1.5 text-sm text-muted-foreground">

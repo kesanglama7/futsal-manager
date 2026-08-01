@@ -42,6 +42,11 @@ export async function PATCH(
         jersey: parsed.data.jersey,
         position: parsed.data.position,
         photo: parsed.data.photo ?? null,
+        rating: parsed.data.rating,
+        pace: parsed.data.pace,
+        shooting: parsed.data.shooting,
+        passing: parsed.data.passing,
+        defending: parsed.data.defending,
       },
     })
 

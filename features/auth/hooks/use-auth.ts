@@ -9,7 +9,6 @@ export function useAuth() {
     isAuthenticated,
     isLoading,
     hydrated,
-    error,
     login,
     register,
     logout,

@@ -84,7 +84,7 @@ export default function TeamsPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight">
+          <h2 className="font-display text-3xl font-black uppercase tracking-tight">
             Team Management
           </h2>
           <p className="text-sm text-muted-foreground">

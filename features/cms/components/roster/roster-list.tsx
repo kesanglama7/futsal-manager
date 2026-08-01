@@ -96,8 +96,11 @@ export function RosterList({ players, onEdit, onDeleted }: RosterListProps) {
                     </span>
                     {player.name}
                   </div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     {POSITION_LABELS[player.position]}
+                    <span className="rounded bg-rating px-1.5 py-0.5 font-display text-xs font-black text-black">
+                      {player.rating}
+                    </span>
                   </div>
                 </div>
               </div>

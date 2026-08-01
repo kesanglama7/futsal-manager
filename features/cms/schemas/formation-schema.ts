@@ -4,7 +4,7 @@ import { FORMATION_TYPE, POSITION } from "@/generated/enums"
 /**
  * A single slot on the pitch. x/y are percentages (5..95) relative to the
  * pitch. playerId is the bound roster player, or null for an empty slot.
- * Max 5 slots per formation (4 outfield + goalkeeper).
+ * Max 6 slots per formation (5 outfield + goalkeeper).
  */
 export const formationSlotSchema = z.object({
   slotId: z.string().min(1),
@@ -29,7 +29,7 @@ export const formationSchema = z.object({
   positions: z
     .array(formationSlotSchema)
     .min(1, "A formation needs at least one slot")
-    .max(5, "A formation can have at most 5 slots"),
+    .max(6, "A formation can have at most 6 slots"),
 })
 
 export type FormationInput = z.infer<typeof formationSchema>

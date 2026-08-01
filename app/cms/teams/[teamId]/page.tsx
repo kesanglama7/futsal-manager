@@ -156,7 +156,7 @@ export default function TeamRosterPage() {
                 <AvatarFallback>{teamInitials}</AvatarFallback>
               </Avatar>
               <div>
-                <h2 className="text-2xl font-semibold tracking-tight">
+                <h2 className="font-display text-3xl font-black uppercase tracking-tight">
                   {team.name}
                 </h2>
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">

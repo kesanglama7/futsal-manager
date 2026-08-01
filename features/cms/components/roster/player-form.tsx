@@ -61,6 +61,11 @@ export function PlayerForm({ teamId, player, onSaved }: PlayerFormProps) {
       jersey: player?.jersey ?? 0,
       position: player?.position ?? POSITION.DEFENDER,
       photo: player?.photo ?? null,
+      rating: player?.rating ?? 70,
+      pace: player?.pace ?? 65,
+      shooting: player?.shooting ?? 65,
+      passing: player?.passing ?? 65,
+      defending: player?.defending ?? 65,
     },
   })
 
@@ -107,7 +112,17 @@ export function PlayerForm({ teamId, player, onSaved }: PlayerFormProps) {
           photo = key
         }
         savedPlayer = await upsertPlayer(
-          { name: data.name, jersey: data.jersey, position: data.position, photo },
+          {
+            name: data.name,
+            jersey: data.jersey,
+            position: data.position,
+            photo,
+            rating: data.rating,
+            pace: data.pace,
+            shooting: data.shooting,
+            passing: data.passing,
+            defending: data.defending,
+          },
           savedPlayer.id
         )
       } else {
@@ -116,6 +131,11 @@ export function PlayerForm({ teamId, player, onSaved }: PlayerFormProps) {
           jersey: data.jersey,
           position: data.position,
           photo: null,
+          rating: data.rating,
+          pace: data.pace,
+          shooting: data.shooting,
+          passing: data.passing,
+          defending: data.defending,
         })
         if (savedPlayer && pendingPhoto) {
           const key = await upload(pendingPhoto, "players", savedPlayer.id)
@@ -126,6 +146,11 @@ export function PlayerForm({ teamId, player, onSaved }: PlayerFormProps) {
                 jersey: savedPlayer.jersey,
                 position: savedPlayer.position,
                 photo: key,
+                rating: savedPlayer.rating,
+                pace: savedPlayer.pace,
+                shooting: savedPlayer.shooting,
+                passing: savedPlayer.passing,
+                defending: savedPlayer.defending,
               },
               savedPlayer.id
             )
@@ -245,10 +270,96 @@ export function PlayerForm({ teamId, player, onSaved }: PlayerFormProps) {
         />
       </Field>
 
+      <Field>
+        <FieldLabel>Rating</FieldLabel>
+        <Controller
+          control={control}
+          name="rating"
+          render={({ field }) => (
+            <Input
+              {...field}
+              type="number"
+              min={1}
+              max={99}
+              onChange={(e) =>
+                field.onChange(
+                  e.target.value === "" ? undefined : Number(e.target.value)
+                )
+              }
+            />
+          )}
+        />
+        <FieldError
+          errors={errors.rating ? [{ message: errors.rating.message }] : []}
+        />
+      </Field>
+
+      <Field>
+        <FieldLabel>Attributes</FieldLabel>
+        <div className="grid grid-cols-2 gap-3">
+          <Controller
+            control={control}
+            name="pace"
+            render={({ field }) => (
+              <StatInput label="Pace" field={field} error={errors.pace} />
+            )}
+          />
+          <Controller
+            control={control}
+            name="shooting"
+            render={({ field }) => (
+              <StatInput label="Shooting" field={field} error={errors.shooting} />
+            )}
+          />
+          <Controller
+            control={control}
+            name="passing"
+            render={({ field }) => (
+              <StatInput label="Passing" field={field} error={errors.passing} />
+            )}
+          />
+          <Controller
+            control={control}
+            name="defending"
+            render={({ field }) => (
+              <StatInput label="Defending" field={field} error={errors.defending} />
+            )}
+          />
+        </div>
+      </Field>
+
       <Button type="submit" disabled={saving} className="w-full">
         {saving && <Loader2 className="animate-spin" />}
         {player ? "Save changes" : "Add player"}
       </Button>
     </form>
+  )
+}
+
+function StatInput({
+  label,
+  field,
+  error,
+}: {
+  label: string
+  field: { value: number | undefined; onChange: (value: number | undefined) => void }
+  error?: { message?: string }
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <Input
+        type="number"
+        min={1}
+        max={99}
+        value={field.value}
+        onChange={(e) =>
+          field.onChange(
+            e.target.value === "" ? undefined : Number(e.target.value)
+          )
+        }
+      />
+      <FieldError errors={error ? [{ message: error.message ?? "" }] : []} />
+    </div>
   )
 }

@@ -120,6 +120,18 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error as { code: string }).code === "P2003"
+    ) {
+      // Match.homeTeamId/awayTeamId FK is onDelete: Restrict
+      return NextResponse.json(
+        { error: "Cannot delete a team that has matches" },
+        { status: 409 }
+      )
+    }
     console.error("Delete team error:", error)
     return NextResponse.json(
       { error: "Internal server error" },

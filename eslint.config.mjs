@@ -12,7 +12,28 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Prototype reference folders (also excluded from tsconfig).
+    "design/**",
+    "animation/**",
+    // Prisma-generated client output.
+    "generated/**",
   ]),
+  {
+    rules: {
+      "react-hooks/set-state-in-effect": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          "args": "after-used",
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "^_",
+          "ignoreRestSiblings": true
+        }
+      ],
+      "@typescript-eslint/no-require-imports": "off",
+      "react/no-unescaped-entities": "off",
+    }
+  }
 ]);
 
 export default eslintConfig;

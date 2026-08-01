@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client"
   output   = "../generated"
@@ -25,6 +24,21 @@ enum POSITION {
   PIVOT
 }
 
+enum MATCH_STATUS {
+  SCHEDULED
+  LIVE
+  FINISHED
+}
+
+enum MATCH_SIDE {
+  HOME
+  AWAY
+}
+
+enum MATCH_EVENT_TYPE {
+  GOAL
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   name      String
@@ -45,9 +59,13 @@ model Team {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  players    User[]
-  roster     Player[]
-  formations Formation[]
+  players     User[]
+  roster      Player[]
+  formations  Formation[]
+  homeMatches Match[]      @relation("MatchHome")
+  awayMatches Match[]      @relation("MatchAway")
+  matchTeams  MatchTeam[]
+  matchEvents MatchEvent[]
 
   @@unique([name])
 }
@@ -63,19 +81,83 @@ model Player {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  rating    Int @default(70) // overall rating 1-99
+  pace      Int @default(65)
+  shooting  Int @default(65)
+  passing   Int @default(65)
+  defending Int @default(65)
+
+  matchEvents MatchEvent[]
+
   @@unique([teamId, jersey])
 }
 
 model Formation {
-  id        Int           @id @default(autoincrement())
+  id        Int            @id @default(autoincrement())
   teamId    Int
   type      FORMATION_TYPE
   name      String // e.g. "2-2 Diamond" (preset) or a custom label
   positions Json // [{ "x": 25, "y": 40, "position": "PIVOT" }, ...] max 5 slots
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
+  matchTeams MatchTeam[]
+
   @@unique([teamId, type, name])
+}
+
+model Match {
+  id          Int          @id @default(autoincrement())
+  homeTeamId  Int
+  awayTeamId  Int
+  scheduledAt DateTime
+  venue       String?
+  status      MATCH_STATUS @default(SCHEDULED)
+  homeScore   Int? // denormalized; kept in sync with GOAL events
+  awayScore   Int?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  homeTeam   Team         @relation("MatchHome", fields: [homeTeamId], references: [id], onDelete: Restrict)
+  awayTeam   Team         @relation("MatchAway", fields: [awayTeamId], references: [id], onDelete: Restrict)
+  matchTeams MatchTeam[]
+  events     MatchEvent[]
+
+  @@index([scheduledAt])
+}
+
+model MatchTeam {
+  id          Int        @id @default(autoincrement())
+  matchId     Int
+  teamId      Int
+  side        MATCH_SIDE
+  formationId Int?
+  positions   Json // FormationSlot[] snapshot (reuses the formation slot shape); [] until a formation is chosen
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  match     Match      @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  team      Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  formation Formation? @relation(fields: [formationId], references: [id], onDelete: SetNull)
+
+  @@unique([matchId, side])
+  @@unique([matchId, teamId])
+}
+
+model MatchEvent {
+  id        Int              @id @default(autoincrement())
+  matchId   Int
+  teamId    Int
+  type      MATCH_EVENT_TYPE // GOAL only for now (cards/assists later)
+  minute    Int
+  playerId  Int? // scorer
+  createdAt DateTime         @default(now())
+
+  match  Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  team   Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  player Player? @relation(fields: [playerId], references: [id], onDelete: SetNull)
+
+  @@index([matchId])
 }

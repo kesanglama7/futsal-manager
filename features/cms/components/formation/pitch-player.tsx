@@ -1,6 +1,7 @@
 "use client"
 
 import { useDrag } from "@/features/cms/hooks/use-drag"
+import { resolveMediaUrl } from "@/lib/media"
 import type { Player } from "@/features/cms/types/cms-types"
 import { cn } from "@/lib/utils"
 
@@ -32,6 +33,7 @@ export function PitchPlayer({
   const { dragging, didDrag, dragProps } = useDrag()
 
   const dim = size === "sm" ? "size-8" : "size-11"
+  const photoUrl = player ? resolveMediaUrl(player.photo) : null
 
   const handleClick = () => {
     if (didDrag()) return
@@ -52,7 +54,7 @@ export function PitchPlayer({
     >
       <div
         className={cn(
-          "flex items-center justify-center rounded-full border-2 font-bold text-white shadow-lg transition-transform",
+          "flex items-center justify-center overflow-hidden rounded-full border-2 font-bold text-white shadow-lg transition-transform",
           "hover:scale-110",
           dragging && "scale-110",
           player
@@ -64,7 +66,16 @@ export function PitchPlayer({
           fontSize: size === "sm" ? "0.6rem" : "0.8rem",
         }}
       >
-        {player ? player.jersey : "+"}
+        {player && photoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={photoUrl}
+            alt={player.name}
+            className="size-full object-cover"
+          />
+        ) : (
+          <>{player ? player.jersey : "+"}</>
+        )}
       </div>
       {player && (
         <div className="pointer-events-none mt-0.5 text-center text-[10px] font-semibold whitespace-nowrap text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
