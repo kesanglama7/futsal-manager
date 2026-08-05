@@ -3,6 +3,7 @@
 import { resolveMediaUrl } from "@/lib/media"
 import type {
   FormationSlot,
+  MatchBenchSlot,
   Player,
   Team,
 } from "@/features/cms/types/cms-types"
@@ -24,6 +25,7 @@ function initials(name: string) {
 interface MatchLineupCardProps {
   team: Team
   lineup: FormationSlot[]
+  bench?: MatchBenchSlot[]
   players: Player[]
   formationName?: string | null
   side: "Home" | "Away"
@@ -32,6 +34,7 @@ interface MatchLineupCardProps {
 export function MatchLineupCard({
   team,
   lineup,
+  bench = [],
   players,
   formationName,
   side,
@@ -48,6 +51,10 @@ export function MatchLineupCard({
         : null,
     }))
     .filter((row) => row.player !== null)
+
+  const benchPlayers = bench
+    .map((b) => players.find((p) => p.id === b.playerId) ?? null)
+    .filter((p): p is Player => !!p)
 
   return (
     <div className="rounded-2xl border bg-card p-4">
@@ -130,11 +137,52 @@ export function MatchLineupCard({
           )}
           {bound.length > 0 && (
             <p className="mt-2 text-xs text-muted-foreground">
-              {bound.length}/6 starting players
+              {bound.length}/7 starting players
             </p>
           )}
         </div>
       </div>
+
+      {/* Bench */}
+      {benchPlayers.length > 0 && (
+        <div className="mt-4 border-t pt-3">
+          <div className="mb-2 flex items-center gap-2 text-[10px] font-black tracking-[0.25em] text-muted-foreground uppercase">
+            <span
+              className="size-1.5 rounded-full"
+              style={{ backgroundColor: accent.primary }}
+            />
+            Bench ({benchPlayers.length})
+          </div>
+          <ul className="flex flex-col gap-1.5">
+            {benchPlayers.map((player) => {
+              const photoUrl = resolveMediaUrl(player.photo)
+              return (
+                <li
+                  key={player.id}
+                  className="flex items-center gap-2 rounded-lg border bg-muted/40 px-2 py-1.5"
+                >
+                  <span
+                    className="flex size-7 shrink-0 items-center justify-center rounded-md font-display text-sm font-black text-white"
+                    style={{ backgroundColor: accent.primary }}
+                  >
+                    {player.jersey}
+                  </span>
+                  <Avatar size="sm" className="size-7 border border-border">
+                    <AvatarImage src={photoUrl ?? undefined} alt="" />
+                    <AvatarFallback>
+                      <span className="font-display text-xs font-black">{player.jersey}</span>
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="truncate font-display text-sm font-semibold uppercase">{player.name}</span>
+                  <span className="ml-auto rounded bg-rating px-1.5 py-0.5 font-display text-xs font-black text-black">
+                    {player.rating}
+                  </span>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      )}
     </div>
   )
 }

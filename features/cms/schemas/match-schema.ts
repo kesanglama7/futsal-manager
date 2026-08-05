@@ -41,13 +41,23 @@ export const matchUpdateSchema = z.object({
 })
 
 /**
+ * A single bench/substitute entry. Roster players not in the starting 7.
+ * position/jersey are optional display hints; playerId links the roster.
+ */
+export const matchBenchSlotSchema = z.object({
+  playerId: z.number().int().positive(),
+})
+
+/**
  * Save a team's lineup for a match side. positions reuses the formation slot
- * shape (a snapshot of the chosen formation with player bindings). Up to 5
- * slots; 0 is valid (no lineup set).
+ * shape (a snapshot of the chosen formation with player bindings). Up to 7
+ * slots (starting line-up); 0 is valid (no lineup set). bench lists the
+ * remaining squad (substitutes).
  */
 export const matchLineupSchema = z.object({
   formationId: z.number().int().positive().nullable(),
-  positions: z.array(formationSlotSchema).max(6, "A lineup can have at most 6 slots"),
+  positions: z.array(formationSlotSchema).max(7, "A lineup can have at most 7 slots"),
+  bench: z.array(matchBenchSlotSchema).default([]),
 })
 
 /** Create a GOAL event for a live/finished match. */
@@ -61,3 +71,4 @@ export type MatchInput = z.infer<typeof matchSchema>
 export type MatchUpdateInput = z.infer<typeof matchUpdateSchema>
 export type MatchLineupInput = z.infer<typeof matchLineupSchema>
 export type MatchEventInput = z.infer<typeof matchEventSchema>
+export type MatchBenchSlotInput = z.infer<typeof matchBenchSlotSchema>

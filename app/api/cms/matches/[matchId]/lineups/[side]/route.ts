@@ -60,23 +60,49 @@ export async function PUT(
     }
 
     // Every bound slot player must be on this side's roster.
-    const playerIds = [
+    const startingIds = [
       ...new Set(
         parsed.data.positions
           .map((p) => p.playerId)
           .filter((pid): pid is number => pid !== null)
       ),
     ]
-    if (playerIds.length > 0) {
+    if (startingIds.length > 0) {
       const rosterCount = await db.player.count({
-        where: { id: { in: playerIds }, teamId: sideEntry.teamId },
+        where: { id: { in: startingIds }, teamId: sideEntry.teamId },
       })
-      if (rosterCount !== playerIds.length) {
+      if (rosterCount !== startingIds.length) {
         return NextResponse.json(
           { error: "Player is not on this team's roster" },
           { status: 400 }
         )
       }
+    }
+
+    // Every bench player must be on this side's roster.
+    const benchIds = [
+      ...new Set(parsed.data.bench.map((b) => b.playerId)),
+    ]
+    if (benchIds.length > 0) {
+      const rosterCount = await db.player.count({
+        where: { id: { in: benchIds }, teamId: sideEntry.teamId },
+      })
+      if (rosterCount !== benchIds.length) {
+        return NextResponse.json(
+          { error: "Bench player is not on this team's roster" },
+          { status: 400 }
+        )
+      }
+    }
+
+    // A player cannot be both a starter and on the bench.
+    const startingSet = new Set(startingIds)
+    const overlap = benchIds.find((pid) => startingSet.has(pid))
+    if (overlap !== undefined) {
+      return NextResponse.json(
+        { error: "A player cannot be both a starter and on the bench" },
+        { status: 400 }
+      )
     }
 
     const lineup = await db.matchTeam.upsert({
@@ -87,10 +113,12 @@ export async function PUT(
         side: side as "HOME" | "AWAY",
         formationId: parsed.data.formationId,
         positions: JSON.parse(JSON.stringify(parsed.data.positions)),
+        bench: JSON.parse(JSON.stringify(parsed.data.bench)),
       },
       update: {
         formationId: parsed.data.formationId,
         positions: JSON.parse(JSON.stringify(parsed.data.positions)),
+        bench: JSON.parse(JSON.stringify(parsed.data.bench)),
       },
       include: { team: true, formation: true },
     })

@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react"
 import { ArrowLeft, Loader2, MapPin } from "lucide-react"
 
 import { useAuth } from "@/features/auth/hooks/use-auth"
-import { MatchLineupEditor } from "@/features/cms/components/matches/match-lineup-editor"
+import { MatchLineupView } from "@/features/cms/components/matches/match-lineup-view"
 import { MatchGoalsPanel } from "@/features/cms/components/matches/match-goals-panel"
 import { MatchStatusBadge } from "@/features/cms/components/matches/match-status"
 import { resolveMediaUrl } from "@/lib/media"
@@ -15,7 +15,6 @@ import type { Match, Team } from "@/features/cms/types/cms-types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Separator } from "@/components/ui/separator"
 
 type LoadState = "loading" | "ready" | "error"
 
@@ -167,8 +166,11 @@ export default function MatchDetailPage() {
 
       {loadState === "ready" && match && (
         <>
-          {/* Header */}
-          <div className="flex flex-col gap-4 rounded-2xl border bg-card p-6">
+          {/* Header / scoreboard */}
+          <div className="relative overflow-hidden rounded-2xl border bg-card p-6">
+            {match.status === MATCH_STATUS.LIVE && (
+              <span className="absolute inset-x-0 top-0 h-0.5 animate-pulse bg-live" />
+            )}
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <MatchStatusBadge status={match.status} />
@@ -179,24 +181,28 @@ export default function MatchDetailPage() {
                   </span>
                 )}
               </div>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs font-medium text-muted-foreground">
                 {formatDateTime(match.scheduledAt)}
               </span>
             </div>
 
-            <div className="flex items-center justify-center gap-6 sm:gap-10">
+            <div className="mt-2 flex items-center justify-center gap-6 sm:gap-10">
               <TeamAvatar team={match.homeTeam} />
               <div className="flex flex-col items-center gap-1">
-                {showScore ? (
-                  <span className="text-4xl font-bold tabular-nums">
-                    {match.homeScore} – {match.awayScore}
+                {showScore || match.status === MATCH_STATUS.LIVE ? (
+                  <span className="font-display text-5xl font-black tabular-nums sm:text-6xl">
+                    {match.homeScore ?? 0}
+                    <span className="mx-3 text-muted-foreground">–</span>
+                    {match.awayScore ?? 0}
                   </span>
                 ) : (
-                  <span className="text-2xl font-semibold text-muted-foreground">
-                    vs
+                  <span className="font-display text-4xl font-black text-muted-foreground">
+                    VS
                   </span>
                 )}
-                <span className="text-xs text-muted-foreground">Home – Away</span>
+                <span className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+                  Home – Away
+                </span>
               </div>
               <TeamAvatar team={match.awayTeam} />
             </div>
@@ -253,45 +259,16 @@ export default function MatchDetailPage() {
             <h3 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
               Lineups &amp; substitutions
             </h3>
-            <div className="flex flex-col gap-8">
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary uppercase">
-                    Home
-                  </span>
-                  <span className="truncate">{match.homeTeam?.name}</span>
-                </div>
-                {match.homeTeam && (
-                  <MatchLineupEditor
-                    match={match}
-                    side={MATCH_SIDE.HOME}
-                    team={match.homeTeam}
-                    lineup={homeLineup}
-                    onSaved={loadMatch}
-                  />
-                )}
-              </div>
-
-              <Separator />
-
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground uppercase">
-                    Away
-                  </span>
-                  <span className="truncate">{match.awayTeam?.name}</span>
-                </div>
-                {match.awayTeam && (
-                  <MatchLineupEditor
-                    match={match}
-                    side={MATCH_SIDE.AWAY}
-                    team={match.awayTeam}
-                    lineup={awayLineup}
-                    onSaved={loadMatch}
-                  />
-                )}
-              </div>
-            </div>
+            {match.homeTeam && match.awayTeam && (
+              <MatchLineupView
+                match={match}
+                homeTeam={match.homeTeam}
+                awayTeam={match.awayTeam}
+                homeLineup={homeLineup}
+                awayLineup={awayLineup}
+                onSaved={loadMatch}
+              />
+            )}
           </section>
 
           {/* Goals */}

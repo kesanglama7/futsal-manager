@@ -71,6 +71,12 @@ export interface Match {
   _count?: { events: number }
 }
 
+export interface MatchBenchSlot {
+  playerId: number
+  position?: POSITION | null
+  jersey?: number | null
+}
+
 export interface MatchTeam {
   id: number
   matchId: number
@@ -78,6 +84,7 @@ export interface MatchTeam {
   side: MATCH_SIDE
   formationId: number | null
   positions: FormationSlot[]
+  bench: MatchBenchSlot[]
   createdAt: string
   updatedAt: string
   team?: Team

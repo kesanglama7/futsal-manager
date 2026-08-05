@@ -6,25 +6,25 @@ import { Pause, Play, RotateCcw, SkipForward, X } from "lucide-react"
 import { resolveMediaUrl } from "@/lib/media"
 import type {
   Match,
+  MatchEvent,
+  MatchTeam,
   Player,
   Team,
-  FormationSlot,
 } from "@/features/cms/types/cms-types"
-import type { MatchSummary } from "@/features/public/types/public-types"
 import { teamAccent } from "@/features/public/components/matches/team-accent"
 import { MatchLineupReveal } from "@/features/public/components/matches/match-lineup-reveal"
 import { MatchPlayerCard } from "@/features/public/components/matches/match-player-card"
-import { MatchStatsBar } from "@/features/public/components/matches/match-stats-bar"
+import { MatchResultSummary } from "@/features/public/components/matches/match-result-summary"
 import { Button } from "@/components/ui/button"
 
-const PHASES = ["title", "home", "away", "summary"] as const
+const PHASES = ["title", "home", "away", "result"] as const
 type Phase = (typeof PHASES)[number]
 
 const PHASE_DURATIONS: Record<Phase, number> = {
   title: 3500,
   home: 7000,
   away: 7000,
-  summary: 6000,
+  result: 8000,
 }
 
 interface MatchIntroModalProps {
@@ -35,14 +35,14 @@ interface MatchIntroModalProps {
   away: Team
   homePlayers: Player[]
   awayPlayers: Player[]
-  summary: MatchSummary | null
+  events?: MatchEvent[]
 }
 
 /**
  * Light-theme port of animation/BroadcastIntroModal.tsx: a fullscreen
  * FIFA-style broadcast intro that auto-advances through title -> home lineup
- * -> away lineup -> head-to-head summary. No framer-motion — phases remount a
- * keyed container so enter animations replay via tw-animate-css.
+ * -> away lineup -> result (score, goalscorers, MVP). No framer-motion —
+ * phases remount a keyed container so enter animations replay via tw-animate-css.
  */
 export function MatchIntroModal({
   open,
@@ -52,7 +52,7 @@ export function MatchIntroModal({
   away,
   homePlayers,
   awayPlayers,
-  summary,
+  events = [],
 }: MatchIntroModalProps) {
   const [phase, setPhase] = useState<Phase>("title")
   const [playing, setPlaying] = useState(true)
@@ -92,7 +92,7 @@ export function MatchIntroModal({
           ● Live Broadcast Intro
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button size="sm" variant="secondary" onClick={() => setPlaying(true)}>
+          {/* <Button size="sm" variant="secondary" onClick={() => setPlaying(true)}>
             <Play className="size-4" /> Play
           </Button>
           <Button size="sm" variant="secondary" onClick={() => setPlaying(false)}>
@@ -117,7 +117,7 @@ export function MatchIntroModal({
             }}
           >
             <RotateCcw className="size-4" /> Replay
-          </Button>
+          </Button> */}
           <Button size="sm" variant="destructive" onClick={onClose}>
             <X className="size-4" /> Close
           </Button>
@@ -133,7 +133,8 @@ export function MatchIntroModal({
           {phase === "home" && (
             <MatchLineupReveal
               team={home}
-              lineup={homeLineup}
+              lineup={homeLineup?.positions ?? []}
+              bench={homeLineup?.bench ?? []}
               players={homePlayers}
               title="Home Lineup"
               onPlayer={setSelectedPlayer}
@@ -142,15 +143,21 @@ export function MatchIntroModal({
           {phase === "away" && (
             <MatchLineupReveal
               team={away}
-              lineup={awayLineup}
+              lineup={awayLineup?.positions ?? []}
+              bench={awayLineup?.bench ?? []}
               players={awayPlayers}
               title="Away Lineup"
               reverse
               onPlayer={setSelectedPlayer}
             />
           )}
-          {phase === "summary" && (
-            <SummaryPhase home={home} away={away} summary={summary} />
+          {phase === "result" && (
+            <MatchResultSummary
+              match={match}
+              home={home}
+              away={away}
+              events={events}
+            />
           )}
         </div>
 
@@ -184,8 +191,8 @@ export function MatchIntroModal({
   )
 }
 
-function findLineup(match: Match, side: "HOME" | "AWAY"): FormationSlot[] {
-  return match.matchTeams?.find((mt) => mt.side === side)?.positions ?? []
+function findLineup(match: Match, side: "HOME" | "AWAY"): MatchTeam | undefined {
+  return match.matchTeams?.find((mt) => mt.side === side)
 }
 
 function TitlePhase({
@@ -263,129 +270,6 @@ function TeamCrest({ team, side }: { team: Team; side: "left" | "right" }) {
   )
 }
 
-function SummaryPhase({
-  home,
-  away,
-  summary,
-}: {
-  home: Team
-  away: Team
-  summary: MatchSummary | null
-}) {
-  const homeAccent = teamAccent(home)
-  const awayAccent = teamAccent(away)
-
-  const wins = summary ? summary.home.wins : 0
-  const awayWins = summary ? summary.away.wins : 0
-  const gf = summary ? summary.home.goalsFor : 0
-  const awayGf = summary ? summary.away.goalsFor : 0
-  const ga = summary ? summary.home.goalsAgainst : 0
-  const awayGa = summary ? summary.away.goalsAgainst : 0
-
-  return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 p-8">
-      <div className="animate-in slide-in-from-top-4 text-xs font-black tracking-[0.5em] text-primary uppercase">
-        Head to Head
-      </div>
-
-      <div className="grid w-full max-w-3xl grid-cols-3 gap-6">
-        <TeamStack team={home} summary={summary?.home} align="left" />
-        <div className="animate-in fade-in space-y-4 duration-700">
-          <MatchStatsBar
-            label="Wins"
-            home={wins}
-            away={awayWins}
-            homeColor={homeAccent.primary}
-            awayColor={awayAccent.primary}
-          />
-          <MatchStatsBar
-            label="Goals For"
-            home={gf}
-            away={awayGf}
-            homeColor={homeAccent.primary}
-            awayColor={awayAccent.primary}
-          />
-          <MatchStatsBar
-            label="Goals Against"
-            home={ga}
-            away={awayGa}
-            homeColor={homeAccent.primary}
-            awayColor={awayAccent.primary}
-          />
-        </div>
-        <TeamStack team={away} summary={summary?.away} align="right" />
-      </div>
-
-      <div className="grid w-full max-w-3xl grid-cols-2 gap-6">
-        <TopScorerCard label="Home Top Scorer" top={summary?.topScorers.home ?? null} />
-        <TopScorerCard label="Away Top Scorer" top={summary?.topScorers.away ?? null} />
-      </div>
-    </div>
-  )
-}
-
-function TeamStack({
-  team,
-  summary,
-  align,
-}: {
-  team: Team
-  summary?: MatchSummary["home"]
-  align: "left" | "right"
-}) {
-  const accent = teamAccent(team)
-  const logoUrl = resolveMediaUrl(team.logo)
-  const record = summary
-    ? `${summary.wins}W · ${summary.draws}D · ${summary.losses}L`
-    : "No finished matches"
-
-  return (
-    <div className={`flex flex-col items-center gap-2 ${align === "right" ? "md:items-end" : "md:items-start"}`}>
-      {logoUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={logoUrl} alt={team.name} className="h-20 w-20" />
-      ) : (
-        <span
-          className="flex h-20 w-20 items-center justify-center rounded-full text-2xl font-black text-white"
-          style={{ backgroundColor: accent.primary }}
-        >
-          {initials(team.name)}
-        </span>
-      )}
-      <div className="text-lg font-black">{team.name}</div>
-      <div className="text-xs tracking-widest uppercase" style={{ color: accent.primary }}>
-        {record}
-      </div>
-    </div>
-  )
-}
-
-function TopScorerCard({
-  label,
-  top,
-}: {
-  label: string
-  top: { player: Player; goals: number } | null
-}) {
-  return (
-    <div className="rounded-xl border bg-card/60 p-4 backdrop-blur">
-      <div className="text-xs tracking-widest text-muted-foreground uppercase">
-        {label}
-      </div>
-      {top ? (
-        <>
-          <div className="mt-1 text-xl font-black">{top.player.name}</div>
-          <div className="text-primary">
-            {top.goals} {top.goals === 1 ? "goal" : "goals"}
-          </div>
-        </>
-      ) : (
-        <div className="mt-1 text-sm text-muted-foreground">No goals recorded</div>
-      )}
-    </div>
-  )
-}
-
 function FloatingParticles() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -413,14 +297,4 @@ function formatDateTime(date: string): string {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(d)
-}
-
-function initials(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .filter(Boolean)
-    .join("")
-    .slice(0, 2)
-    .toUpperCase()
 }

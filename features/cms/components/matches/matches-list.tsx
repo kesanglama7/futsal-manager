@@ -123,12 +123,22 @@ export function MatchesList({ matches, onEdit, onDeleted }: MatchesListProps) {
             match.status === MATCH_STATUS.FINISHED &&
             match.homeScore !== null &&
             match.awayScore !== null
+          const isLive = match.status === MATCH_STATUS.LIVE
 
           return (
-            <Card key={match.id}>
+            <Card
+              key={match.id}
+              className={cn(
+                "relative overflow-hidden",
+                isLive && "border-live/40"
+              )}
+            >
+              {isLive && (
+                <span className="absolute inset-x-0 top-0 h-0.5 animate-pulse bg-live" />
+              )}
               <CardHeader className="flex flex-row items-center justify-between gap-2">
                 <MatchStatusBadge status={match.status} />
-                <span className="truncate text-sm text-muted-foreground">
+                <span className="truncate text-xs font-medium text-muted-foreground">
                   {formatDateTime(match.scheduledAt)}
                 </span>
               </CardHeader>
@@ -138,13 +148,19 @@ export function MatchesList({ matches, onEdit, onDeleted }: MatchesListProps) {
                     <TeamMark name={home.name} logo={home.logo} side="home" />
                   )}
                   {finished ? (
-                    <span className="shrink-0 font-display text-xl font-black tabular-nums">
+                    <span className="shrink-0 font-display text-2xl font-black tabular-nums">
                       {match.homeScore}
                       <span className="mx-1 text-muted-foreground">–</span>
                       {match.awayScore}
                     </span>
+                  ) : isLive ? (
+                    <span className="shrink-0 font-display text-lg font-black tabular-nums text-live">
+                      {match.homeScore ?? 0}
+                      <span className="mx-1 text-muted-foreground">–</span>
+                      {match.awayScore ?? 0}
+                    </span>
                   ) : (
-                    <span className="shrink-0 font-display text-base font-bold text-muted-foreground">
+                    <span className="shrink-0 font-display text-lg font-bold text-muted-foreground">
                       VS
                     </span>
                   )}

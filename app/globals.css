@@ -218,4 +218,28 @@
       opacity: 1;
     }
   }
+
+  /* Broadcast lineup cutout walk-in: rise from below with a slight scale. */
+  @keyframes cutout-in {
+    from {
+      transform: translateY(90px);
+      opacity: 0;
+      scale: 0.9;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+      scale: 1;
+    }
+  }
+
+  /* Name plate under a cutout: unrolls from the center. */
+  @keyframes plate-in {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
 }

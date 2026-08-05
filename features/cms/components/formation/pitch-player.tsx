@@ -12,6 +12,8 @@ interface PitchPlayerProps {
   onClick?: () => void
   onDragEnd?: (x: number, y: number) => void
   size?: "sm" | "md"
+  /** Distinguish the two teams when both are rendered on one shared pitch. */
+  tone?: "home" | "away"
 }
 
 /**
@@ -20,7 +22,8 @@ interface PitchPlayerProps {
  * slots show a "+".
  *
  * Adapted from design/pitchCanvas.tsx PitchPlayer, restyled for the light
- * theme with one accent color (the Team model has no per-team color).
+ * theme. When both teams share a pitch, pass `tone="away"` to use a distinct
+ * accent so the sides stay visually separate.
  */
 export function PitchPlayer({
   x,
@@ -29,6 +32,7 @@ export function PitchPlayer({
   onClick,
   onDragEnd,
   size = "md",
+  tone = "home",
 }: PitchPlayerProps) {
   const { dragging, didDrag, dragProps } = useDrag()
 
@@ -58,7 +62,9 @@ export function PitchPlayer({
           "hover:scale-110",
           dragging && "scale-110",
           player
-            ? "border-green-900/60 bg-emerald-600"
+            ? tone === "away"
+              ? "border-slate-900/60 bg-sky-600"
+              : "border-green-900/60 bg-emerald-600"
             : "border-dashed border-white/80 bg-black/20",
           dim
         )}

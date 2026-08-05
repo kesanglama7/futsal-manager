@@ -97,7 +97,7 @@ model Formation {
   teamId    Int
   type      FORMATION_TYPE
   name      String // e.g. "2-2 Diamond" (preset) or a custom label
-  positions Json // [{ "x": 25, "y": 40, "position": "PIVOT" }, ...] max 5 slots
+  positions Json // [{ "x": 25, "y": 40, "position": "PIVOT" }, ...] max 7 slots (1 GK + 6 outfield)
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
 
@@ -134,7 +134,8 @@ model MatchTeam {
   teamId      Int
   side        MATCH_SIDE
   formationId Int?
-  positions   Json // FormationSlot[] snapshot (reuses the formation slot shape); [] until a formation is chosen
+  positions   Json // FormationSlot[] snapshot (reuses the formation slot shape); [] until a formation is chosen. Max 7 slots (1 GK + 6 outfield)
+  bench       Json   @default("[]") // MatchBenchSlot[] snapshot: [{ playerId }]; roster players not in the starting 7
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 

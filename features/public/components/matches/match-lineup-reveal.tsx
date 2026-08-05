@@ -1,15 +1,17 @@
 "use client"
 
+import { useEffect, useState } from "react"
+
 import { resolveMediaUrl } from "@/lib/media"
 import type {
   FormationSlot,
+  MatchBenchSlot,
   Player,
   Team,
 } from "@/features/cms/types/cms-types"
 import { teamAccent } from "@/features/public/components/matches/team-accent"
-import { MatchPitchPlayer } from "@/features/public/components/matches/match-pitch-player"
-import { PitchCanvas } from "@/features/cms/components/formation/pitch-canvas"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { cn } from "@/lib/utils"
 
 function initials(name: string) {
   return name
@@ -21,26 +23,42 @@ function initials(name: string) {
     .toUpperCase()
 }
 
+/** 7-a-side broadcast layout on the mini formation board: 1 GK + 6 outfield. */
+const POS7: { x: number; y: number }[] = [
+  { x: 50, y: 90 }, // GK
+  { x: 26, y: 72 },
+  { x: 74, y: 72 },
+  { x: 16, y: 48 },
+  { x: 84, y: 48 },
+  { x: 36, y: 24 },
+  { x: 64, y: 24 },
+]
+
+const GROUP_MS = 2200
+
 interface MatchLineupRevealProps {
   team: Team
   lineup: FormationSlot[]
+  bench?: MatchBenchSlot[]
   players: Player[]
   title: string
   reverse?: boolean
   onPlayer?: (player: Player) => void
 }
 
-const STEP = 0.22
-
 /**
- * Light-theme port of animation/BroadcastLineup.tsx: TV-style lineup reveal
- * with a team banner, staggered roster rows, and pitch markers that pop in
- * synced to the rows. Animations are CSS-driven (tw-animate-css + inline
- * animationDelay), no framer-motion.
+ * Light-theme port of animation/BroadcastLineup.tsx: World-Cup style "Team
+ * Lineup" reveal — left rail with the team banner and a mini formation board,
+ * right stage with player cutouts walking in (keeper alone, then trios), each
+ * with a broadcast name plate underneath, and a lower-third strip. The bench
+ * is revealed below the cutout stage after the starting seven. No
+ * framer-motion — the walk-in and name-plate animations are CSS keyframes
+ * (cutout-in / plate-in) with staggered delays.
  */
 export function MatchLineupReveal({
   team,
   lineup,
+  bench = [],
   players,
   title,
   reverse = false,
@@ -48,6 +66,7 @@ export function MatchLineupReveal({
 }: MatchLineupRevealProps) {
   const accent = teamAccent(team)
 
+  // Full 7-man squad: GK first, then outfield by jersey.
   const roster = lineup
     .map((slot) => ({
       slot,
@@ -56,154 +75,312 @@ export function MatchLineupReveal({
         : null,
     }))
     .filter((row) => row.player !== null)
+  const squad = roster
+    .map((row) => row.player!)
+    .sort((a, b) => (a.position === "GOALKEEPER" ? -1 : b.position === "GOALKEEPER" ? 1 : a.jersey - b.jersey))
 
-  const lowerThird = roster
-    .map((row) => `${row.player!.jersey} ${row.player!.name}`)
+  const benchPlayers = bench
+    .map((b) => players.find((p) => p.id === b.playerId) ?? null)
+    .filter((p): p is Player => !!p)
+
+  // Groups: keeper alone, then trios.
+  const groups: Player[][] = [squad.slice(0, 1), squad.slice(1, 4), squad.slice(4, 7)].filter(
+    (g) => g.length > 0
+  )
+
+  const [gi, setGi] = useState(0)
+  useEffect(() => {
+    setGi(0)
+    const t = setInterval(() => setGi((i) => (i + 1 < groups.length ? i + 1 : i)), GROUP_MS)
+    return () => clearInterval(t)
+  }, [team.id, groups.length])
+
+  const revealedCount = groups.slice(0, gi + 1).reduce((n, g) => n + g.length, 0)
+
+  const photoUrl = resolveMediaUrl(team.logo)
+  const lowerThird = squad.map((p) => `${p.jersey} ${p.name.split(" ").slice(-1)[0]}`).join("   ·   ")
+  const benchThird = benchPlayers
+    .map((p) => `${p.jersey} ${p.name.split(" ").slice(-1)[0]}`)
     .join("   ·   ")
 
   return (
-    <div className="absolute inset-0 overflow-hidden">
-      {/* Team-color ambience */}
+    <div className="absolute inset-0 overflow-hidden bg-[#07070c]">
+      {/* stadium ambience */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-20"
+        className="pointer-events-none absolute inset-0"
         style={{
-          background: `radial-gradient(circle at ${reverse ? "80%" : "20%"} 30%, ${accent.primary}, transparent 60%)`,
+          background: `radial-gradient(120% 80% at 50% 100%, ${accent.primary}33, transparent 60%), radial-gradient(60% 60% at ${reverse ? "85%" : "15%"} 0%, ${accent.primary}22, transparent 70%)`,
         }}
       />
-      {/* Diagonal light sweep */}
-      <div className="pointer-events-none absolute inset-y-0 w-1/3 animate-[sweep_1.6s_ease-out] skew-x-12 bg-primary/10 blur-2xl" />
+      <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent_0_3px,rgba(255,255,255,0.02)_3px_4px)]" />
 
-      <div
-        className={`relative flex h-full flex-col gap-4 p-5 md:grid md:grid-cols-[1.05fr_0.95fr] md:items-center md:gap-8 md:p-10 ${
-          reverse ? "md:[direction:rtl]" : ""
-        }`}
-      >
-        {/* Roster column */}
-        <div className="min-w-0 [direction:ltr]">
-          {/* Banner */}
-          <div
-            className="relative mb-4 flex animate-in slide-in-from-left-1/2 items-center gap-3 overflow-hidden rounded-r-xl px-4 py-3"
-            style={{
-              background: `linear-gradient(90deg, ${accent.primary}, transparent)`,
-              borderLeft: `6px solid ${accent.secondary}`,
-            }}
-          >
-            {resolveMediaUrl(team.logo) ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={resolveMediaUrl(team.logo) ?? undefined}
-                alt={team.name}
-                className="h-12 w-12 drop-shadow"
-              />
-            ) : (
-              <span
-                className="flex h-12 w-12 items-center justify-center rounded-full text-lg font-black text-white"
-                style={{ backgroundColor: accent.primary }}
-              >
-                {initials(team.name)}
-              </span>
-            )}
-            <div>
-              <div className="text-[10px] font-black tracking-[0.35em] text-white/80 uppercase">
-                {title}
-              </div>
-              <div className="text-2xl font-black leading-tight text-white uppercase md:text-3xl">
-                {team.name}
-              </div>
-            </div>
-          </div>
-
-          {roster.length === 0 ? (
-            <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
-              Lineup not set yet — check back before matchday.
-            </div>
-          ) : (
-            <div className="space-y-1.5">
-              {roster.map((row, i) => {
-                const player = row.player!
-                const photoUrl = resolveMediaUrl(player.photo)
-                return (
-                  <button
-                    key={row.slot.slotId}
-                    type="button"
-                    onClick={() => onPlayer?.(player)}
-                    className="flex w-full animate-in slide-in-from-left-1/2 items-center gap-3 rounded-lg border bg-muted/40 px-3 py-2 text-left backdrop-blur transition-colors hover:bg-muted"
-                    style={{
-                      animationDelay: `${0.25 + i * STEP}s`,
-                      animationFillMode: "both",
-                    }}
-                  >
-                    <span
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md font-display text-base font-black text-white"
-                      style={{
-                        backgroundColor: accent.primary,
-                        boxShadow: `0 0 14px ${accent.primary}66`,
-                      }}
-                    >
-                      {player.jersey}
-                    </span>
-                    <Avatar size="sm" className="size-8 border border-border">
-                      <AvatarImage src={photoUrl ?? undefined} alt="" />
-                      <AvatarFallback>
-                        <span className="font-display text-xs font-black">{player.jersey}</span>
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="truncate font-display text-base font-bold tracking-wide text-foreground uppercase">
-                      {player.name}
-                    </span>
-                    <span className="ml-auto text-[10px] font-black tracking-widest text-muted-foreground uppercase">
-                      {player.position}
-                    </span>
-                    <span className="rounded bg-rating px-1.5 py-0.5 font-display text-xs font-black text-black">
-                      {player.rating}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Pitch column */}
+      {/* Header strip */}
+      <div className="absolute right-0 left-0 top-0 z-20 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 pt-3 md:px-8 md:pt-4">
         <div
-          className="mx-auto h-full max-h-[52vh] w-full max-w-xs [direction:ltr] md:max-h-[70vh] md:max-w-sm"
-          data-pitch
+          className={cn(
+            "animate-in slide-in-from-left-1/2 flex min-w-0 items-center gap-2 justify-self-start rounded-sm px-2.5 py-1.5 shadow-lg md:gap-3 md:px-4 md:py-2 duration-500",
+            reverse && "md:justify-self-end md:order-2 md:flex-row-reverse"
+          )}
+          style={{ background: `linear-gradient(90deg, ${accent.primary}, ${accent.primary}bb)` }}
         >
-          <PitchCanvas>
-            {lineup.map((slot, i) => {
-              const player = slot.playerId
-                ? players.find((p) => p.id === slot.playerId) ?? null
-                : null
-              const rosterIdx = roster.findIndex(
-                (row) => row.slot.slotId === slot.slotId
-              )
-              return (
-                <MatchPitchPlayer
-                  key={slot.slotId}
-                  x={slot.x}
-                  y={slot.y}
-                  player={player}
-                  team={team}
-                  delay={0.25 + (rosterIdx >= 0 ? rosterIdx : i) * STEP}
-                  onClick={() => player && onPlayer?.(player)}
-                />
-              )
-            })}
-          </PitchCanvas>
+          {photoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={photoUrl} alt={team.name} className="h-5 w-5 shrink-0 drop-shadow md:h-7 md:w-7" />
+          ) : (
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-black/30 text-[10px] font-black text-white md:h-7 md:w-7 md:text-xs">
+              {initials(team.name)}
+            </span>
+          )}
+          <span className="truncate text-xs font-black tracking-[0.14em] text-white uppercase sm:text-base md:text-xl">
+            {team.name}
+          </span>
+        </div>
+        <div
+          className={cn(
+            "shrink-0 text-right animate-in slide-in-from-right-1/2 duration-500",
+            reverse && "md:text-left md:order-1"
+          )}
+        >
+          <div className="font-display text-sm font-black italic tracking-tight text-white uppercase sm:text-xl md:text-3xl">
+            Team Lineup
+          </div>
+          <div className="truncate text-[8px] font-bold tracking-[0.3em] text-white/50 uppercase md:text-[10px]">
+            {title}
+          </div>
         </div>
       </div>
 
-      {/* Lower third */}
-      <div className="absolute right-0 bottom-0 left-0 flex animate-in slide-in-from-bottom-6 items-center gap-3 border-t bg-muted/80 px-5 py-2 backdrop-blur">
-        <span
-          className="rounded px-2 py-0.5 text-[10px] font-black tracking-[0.3em] text-black uppercase"
-          style={{ backgroundColor: accent.primary }}
+      <div
+        className={cn(
+          "relative z-10 flex h-full items-stretch gap-3 px-2 pb-20 pt-16 sm:px-4 md:gap-8 md:px-8 md:pt-24",
+          reverse && "flex-row-reverse"
+        )}
+      >
+        {/* Mini formation board rail */}
+        <div
+          className="hidden w-40 shrink-0 self-center overflow-hidden rounded-sm shadow-2xl md:block lg:w-56 animate-in slide-in-from-left-1/2 duration-500"
+          style={{ background: `linear-gradient(180deg, ${accent.primary}dd, ${accent.primary}88)` }}
         >
-          Starting Six
-        </span>
-        <span className="truncate text-xs font-semibold tracking-widest text-muted-foreground uppercase">
-          {lowerThird || "Lineup not set yet"}
-        </span>
+          <MiniBoard accent={accent} squad={squad} revealed={revealedCount} />
+        </div>
+
+        {/* Player cutout stage */}
+        <div className="relative flex h-full min-w-0 flex-1 items-center justify-center">
+          <div key={gi} className="flex h-full w-full items-center justify-center gap-1.5 sm:gap-3 md:gap-8">
+            {groups[gi]?.map((p, i) => (
+              <Cutout
+                key={p.id}
+                player={p}
+                accent={accent}
+                index={i}
+                single={groups[gi].length === 1}
+                onClick={() => onPlayer?.(p)}
+              />
+            ))}
+          </div>
+
+          {/* light sweep on each group change */}
+          <div
+            key={`sweep-${gi}`}
+            className="pointer-events-none absolute inset-y-0 w-1/3 skew-x-12 bg-white/15 blur-2xl animate-[sweep_0.9s_ease-out]"
+            style={{ animationDirection: "normal" }}
+          />
+        </div>
+      </div>
+
+      {/* Bench rail */}
+      {/* {benchPlayers.length > 0 && (
+        <div
+          className="absolute right-0 bottom-14 left-0 z-10 flex animate-in fade-in items-center gap-2 overflow-hidden px-3 py-1.5 md:px-8 duration-700"
+          style={{ background: `linear-gradient(90deg, ${accent.primary}55, #00000066)` }}
+        >
+          <span className="shrink-0 rounded-sm bg-black/40 px-1.5 py-0.5 text-[8px] font-black tracking-[0.2em] text-white uppercase md:px-2 md:text-[10px] md:tracking-[0.3em]">
+            Bench ({benchPlayers.length})
+          </span>
+          <div className="flex min-w-0 items-center gap-1.5 overflow-x-auto">
+            {benchPlayers.map((p) => {
+              const benchPhoto = resolveMediaUrl(p.photo)
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => onPlayer?.(p)}
+                  className="flex shrink-0 items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2 py-0.5 transition-colors hover:bg-white/10"
+                >
+                  <Avatar className="size-5 border border-white/30">
+                    <AvatarImage src={benchPhoto ?? undefined} alt={p.name} />
+                    <AvatarFallback>
+                      <span className="font-display text-[10px] font-black text-white">{p.jersey}</span>
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="truncate text-[10px] font-bold tracking-widest text-white/85 uppercase">
+                    {p.name.split(" ").slice(-1)[0]}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )} */}
+
+      {/* Lower third */}
+      {/* <div
+        className="absolute right-0 bottom-0 left-0 z-20 flex animate-in slide-in-from-bottom-6 flex-col gap-0.5 px-3 py-1.5 md:px-8 md:py-2"
+        style={{ background: `linear-gradient(90deg, ${accent.primary}, #000000cc)` }}
+      >
+        <div className="flex items-center gap-2">
+          <span className="shrink-0 rounded-sm bg-black/40 px-1.5 py-0.5 text-[8px] font-black tracking-[0.2em] text-white uppercase md:px-2 md:text-[10px] md:tracking-[0.3em]">
+            1 GK + 6
+          </span>
+          <span className="min-w-0 truncate text-[10px] font-bold tracking-widest text-white/85 uppercase md:text-xs">
+            {lowerThird || "Lineup not set yet"}
+          </span>
+        </div>
+        {benchThird && (
+          <div className="flex items-center gap-2">
+            <span className="shrink-0 rounded-sm bg-black/30 px-1.5 py-0.5 text-[8px] font-black tracking-[0.25em] text-white uppercase md:px-2 md:text-[9px]">
+              Bench
+            </span>
+            <span className="min-w-0 truncate text-[9px] font-semibold tracking-widest text-white/70 uppercase md:text-[10px]">
+              {benchThird}
+            </span>
+          </div>
+        )}
+      </div> */}
+    </div>
+  )
+}
+
+function Cutout({
+  player,
+  accent,
+  index,
+  single,
+  onClick,
+}: {
+  player: Player
+  accent: { primary: string; secondary: string }
+  index: number
+  single: boolean
+  onClick: () => void
+}) {
+  const photoUrl = resolveMediaUrl(player.photo)
+  const delay = 0.12 + index * 0.16
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "group relative flex h-full min-w-0 flex-1 cursor-pointer flex-col items-center justify-center",
+        single ? "max-w-[220px] md:max-w-[320px]" : "max-w-[150px] md:max-w-[240px]"
+      )}
+      style={{ animation: `cutout-in 0.6s ${delay}s cubic-bezier(0.34,1.56,0.64,1) both` }}
+    >
+      {/* spotlight */}
+      <div
+        className="pointer-events-none absolute bottom-8 left-1/2 h-[70%] w-[130%] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
+        style={{ background: `radial-gradient(circle, ${accent.primary}66, transparent 70%)` }}
+      />
+
+      {/* cutout image */}
+      <div className="relative flex min-h-0 w-full flex-1 items-end justify-center">
+        {photoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={photoUrl}
+            alt={player.name}
+            className="h-full w-full object-contain object-bottom drop-shadow-[0_18px_28px_rgba(0,0,0,0.75)]"
+          />
+        ) : (
+          <div className="flex h-3/4 w-3/4 items-center justify-center rounded-full border-2 border-white/20 bg-gradient-to-b from-white/15 to-white/5">
+            <span className="font-display text-4xl font-black text-white/70">
+              {player.jersey}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* name plate */}
+      <div
+        className="mt-1.5 w-full origin-center overflow-hidden rounded-sm shadow-lg md:mt-2"
+        style={{
+          animation: `plate-in 0.35s ${0.35 + index * 0.16}s ease-out both`,
+          background: `linear-gradient(90deg, ${accent.primary}, ${accent.secondary})`,
+        }}
+      >
+        <div className="flex min-w-0 items-center justify-center gap-1 px-1 py-0.5 md:gap-2 md:px-2 md:py-1">
+          <span className="shrink-0 rounded bg-black/40 px-1 text-[9px] font-black text-white md:text-xs">
+            {player.jersey}
+          </span>
+          <span className="truncate text-[9px] font-black tracking-[0.12em] text-white uppercase sm:text-[11px] md:text-sm md:tracking-[0.18em]">
+            {player.name.split(" ").slice(-1)[0]}
+          </span>
+          <span className="hidden shrink-0 rounded bg-black/40 px-1 text-[9px] font-black text-white/80 sm:inline">
+            {player.position}
+          </span>
+        </div>
+      </div>
+    </button>
+  )
+}
+
+function MiniBoard({
+  accent,
+  squad,
+  revealed,
+}: {
+  accent: { primary: string; secondary: string }
+  squad: Player[]
+  revealed: number
+}) {
+  return (
+    <div className="p-3">
+      <div className="mb-2 text-center text-[10px] font-black tracking-[0.3em] text-white/80 uppercase">
+        Formation
+      </div>
+      <div
+        className="relative aspect-[3/4] w-full overflow-hidden rounded-sm border border-white/40"
+        style={{ background: `${accent.secondary}` }}
+      >
+        <div className="absolute inset-2 rounded-sm border border-white/40" />
+        <div className="absolute top-1/2 right-2 left-2 h-px bg-white/40" />
+        <div className="absolute top-1/2 left-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/40" />
+        <div className="absolute top-2 left-1/2 h-8 w-20 -translate-x-1/2 border border-t-0 border-white/40" />
+        <div className="absolute bottom-2 left-1/2 h-8 w-20 -translate-x-1/2 border border-b-0 border-white/40" />
+        {squad.map((p, i) => {
+          const pos = POS7[i] ?? { x: 50, y: 50 }
+          const on = i < revealed
+          return (
+            <div
+              key={p.id}
+              className="absolute -translate-x-1/2 -translate-y-1/2 text-center"
+              style={{
+                left: `${pos.x}%`,
+                top: `${pos.y}%`,
+                opacity: on ? 1 : 0.55,
+                transform: `translate(-50%, -50%) scale(${on ? 1.15 : 1})`,
+                transition: "opacity 0.3s, transform 0.3s",
+              }}
+            >
+              <div
+                className="mx-auto flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-black text-black"
+                style={{
+                  backgroundColor: on ? "#ffffff" : "#ffffffaa",
+                  boxShadow: on ? "0 0 10px #fff" : "none",
+                }}
+              >
+                {p.jersey}
+              </div>
+              <div className="mt-0.5 text-[7px] font-bold leading-none text-white uppercase">
+                {p.name.split(" ").slice(-1)[0]}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      <div className="mt-2 text-center text-[9px] font-black tracking-[0.25em] text-white/85 uppercase">
+        1 GK · 6 Outfield
       </div>
     </div>
   )

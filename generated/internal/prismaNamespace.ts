@@ -1061,6 +1061,7 @@ export const MatchTeamScalarFieldEnum = {
   side: 'side',
   formationId: 'formationId',
   positions: 'positions',
+  bench: 'bench',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

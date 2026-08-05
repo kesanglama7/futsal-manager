@@ -109,11 +109,12 @@ export default function MatchesPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="font-display text-3xl font-black uppercase tracking-tight">
+          <h2 className="font-display text-4xl font-black uppercase tracking-tight">
             Match Management
           </h2>
           <p className="text-sm text-muted-foreground">
-            Schedule matches, set up lineups, and record goals.
+            Schedule matches, set up 7-player lineups, benches, and record
+            goals.
           </p>
         </div>
         <Button onClick={openCreate}>

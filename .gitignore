@@ -49,4 +49,5 @@ passwords.txt
 /.claude
 skills-lock.json
 # /generated
+/intro
 

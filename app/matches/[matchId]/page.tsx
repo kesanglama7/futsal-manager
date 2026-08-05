@@ -229,7 +229,7 @@ export default function MatchDetailPage() {
           {/* Tabs */}
           <PublicTabs
             tabs={[
-              { id: "intro", label: "Intro" },
+              // { id: "intro", label: "Intro" },
               { id: "lineups", label: "Lineups" },
               { id: "stats", label: "Stats" },
               { id: "recap", label: "Recap" },
@@ -259,6 +259,7 @@ export default function MatchDetailPage() {
                     <MatchLineupCard
                       team={home!}
                       lineup={homeLineup?.positions ?? []}
+                      bench={homeLineup?.bench ?? []}
                       players={homePlayers}
                       formationName={homeLineup?.formation?.name}
                       side="Home"
@@ -266,6 +267,7 @@ export default function MatchDetailPage() {
                     <MatchLineupCard
                       team={away!}
                       lineup={awayLineup?.positions ?? []}
+                      bench={awayLineup?.bench ?? []}
                       players={awayPlayers}
                       formationName={awayLineup?.formation?.name}
                       side="Away"
@@ -303,7 +305,7 @@ export default function MatchDetailPage() {
           away={away}
           homePlayers={homePlayers}
           awayPlayers={awayPlayers}
-          summary={detail?.summary ?? null}
+          events={match.events ?? []}
         />
       )}
     </div>
