@@ -33,11 +33,6 @@ export type Team = Prisma.TeamModel
  */
 export type Player = Prisma.PlayerModel
 /**
- * Model Formation
- * 
- */
-export type Formation = Prisma.FormationModel
-/**
  * Model Match
  * 
  */

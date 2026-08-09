@@ -24,7 +24,7 @@ export async function GET(request: Request) {
         include: {
           homeTeam: true,
           awayTeam: true,
-          matchTeams: { include: { team: true, formation: true } },
+          matchTeams: { include: { team: true } },
           _count: { select: { events: true } },
         },
       }),

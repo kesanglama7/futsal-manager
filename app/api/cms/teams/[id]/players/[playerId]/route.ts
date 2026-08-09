@@ -3,6 +3,19 @@ import { db } from "@/lib/db"
 import { requireAdmin } from "@/lib/auth-guard"
 import { playerSchema } from "@/features/cms/schemas/player-schema"
 
+/** Overall rating is derived from the four attributes (clamped 1-99). */
+function ratingFromStats(stats: {
+  pace: number
+  shooting: number
+  passing: number
+  defending: number
+}): number {
+  return Math.max(
+    1,
+    Math.min(99, Math.round((stats.pace + stats.shooting + stats.passing + stats.defending) / 4))
+  )
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string; playerId: string }> }
@@ -42,7 +55,7 @@ export async function PATCH(
         jersey: parsed.data.jersey,
         position: parsed.data.position,
         photo: parsed.data.photo ?? null,
-        rating: parsed.data.rating,
+        rating: ratingFromStats(parsed.data),
         pace: parsed.data.pace,
         shooting: parsed.data.shooting,
         passing: parsed.data.passing,

@@ -61,7 +61,6 @@ export function PlayerForm({ teamId, player, onSaved }: PlayerFormProps) {
       jersey: player?.jersey ?? 0,
       position: player?.position ?? POSITION.DEFENDER,
       photo: player?.photo ?? null,
-      rating: player?.rating ?? 70,
       pace: player?.pace ?? 65,
       shooting: player?.shooting ?? 65,
       passing: player?.passing ?? 65,
@@ -70,6 +69,15 @@ export function PlayerForm({ teamId, player, onSaved }: PlayerFormProps) {
   })
 
   const selectedPosition = watch("position")
+
+  const pace = watch("pace") ?? 0
+  const shooting = watch("shooting") ?? 0
+  const passing = watch("passing") ?? 0
+  const defending = watch("defending") ?? 0
+  const derivedRating = Math.max(
+    1,
+    Math.min(99, Math.round((pace + shooting + passing + defending) / 4))
+  )
 
   async function upsertPlayer(
     body: PlayerInput,
@@ -117,7 +125,6 @@ export function PlayerForm({ teamId, player, onSaved }: PlayerFormProps) {
             jersey: data.jersey,
             position: data.position,
             photo,
-            rating: data.rating,
             pace: data.pace,
             shooting: data.shooting,
             passing: data.passing,
@@ -131,7 +138,6 @@ export function PlayerForm({ teamId, player, onSaved }: PlayerFormProps) {
           jersey: data.jersey,
           position: data.position,
           photo: null,
-          rating: data.rating,
           pace: data.pace,
           shooting: data.shooting,
           passing: data.passing,
@@ -146,7 +152,6 @@ export function PlayerForm({ teamId, player, onSaved }: PlayerFormProps) {
                 jersey: savedPlayer.jersey,
                 position: savedPlayer.position,
                 photo: key,
-                rating: savedPlayer.rating,
                 pace: savedPlayer.pace,
                 shooting: savedPlayer.shooting,
                 passing: savedPlayer.passing,
@@ -271,31 +276,15 @@ export function PlayerForm({ teamId, player, onSaved }: PlayerFormProps) {
       </Field>
 
       <Field>
-        <FieldLabel>Rating</FieldLabel>
-        <Controller
-          control={control}
-          name="rating"
-          render={({ field }) => (
-            <Input
-              {...field}
-              type="number"
-              min={1}
-              max={99}
-              onChange={(e) =>
-                field.onChange(
-                  e.target.value === "" ? undefined : Number(e.target.value)
-                )
-              }
-            />
-          )}
-        />
-        <FieldError
-          errors={errors.rating ? [{ message: errors.rating.message }] : []}
-        />
-      </Field>
-
-      <Field>
         <FieldLabel>Attributes</FieldLabel>
+        <div className="mb-2 flex items-center gap-2">
+          <span className="rounded bg-rating px-1.5 py-0.5 font-display text-xs font-black text-black">
+            {derivedRating}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            Rating is auto-calculated from the four attributes below.
+          </span>
+        </div>
         <div className="grid grid-cols-2 gap-3">
           <Controller
             control={control}

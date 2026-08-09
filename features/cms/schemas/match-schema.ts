@@ -1,6 +1,5 @@
 import { z } from "zod"
-import { MATCH_STATUS } from "@/generated/enums"
-import { formationSlotSchema } from "@/features/cms/schemas/formation-schema"
+import { MATCH_STATUS, POSITION } from "@/generated/enums"
 
 const matchStatusSchema = z.enum([
   MATCH_STATUS.SCHEDULED,
@@ -41,6 +40,24 @@ export const matchUpdateSchema = z.object({
 })
 
 /**
+ * A single slot on the pitch. x/y are percentages (5..95) relative to the
+ * pitch. playerId is the bound roster player, or null for an empty slot.
+ * Max 7 slots per lineup (1 goalkeeper + 6 outfield).
+ */
+export const formationSlotSchema = z.object({
+  slotId: z.string().min(1),
+  x: z.number().min(5).max(95),
+  y: z.number().min(5).max(95),
+  position: z.enum([
+    POSITION.GOALKEEPER,
+    POSITION.DEFENDER,
+    POSITION.WINGER,
+    POSITION.PIVOT,
+  ]),
+  playerId: z.number().int().positive().nullable(),
+})
+
+/**
  * A single bench/substitute entry. Roster players not in the starting 7.
  * position/jersey are optional display hints; playerId links the roster.
  */
@@ -49,13 +66,12 @@ export const matchBenchSlotSchema = z.object({
 })
 
 /**
- * Save a team's lineup for a match side. positions reuses the formation slot
- * shape (a snapshot of the chosen formation with player bindings). Up to 7
- * slots (starting line-up); 0 is valid (no lineup set). bench lists the
- * remaining squad (substitutes).
+ * Save a team's lineup for a match side. positions reuses the slot shape
+ * (a snapshot of the 1-3-3 formation with player bindings). Up to 7 slots
+ * (starting line-up); 0 is valid (no lineup set). bench lists the remaining
+ * squad (substitutes).
  */
 export const matchLineupSchema = z.object({
-  formationId: z.number().int().positive().nullable(),
   positions: z.array(formationSlotSchema).max(7, "A lineup can have at most 7 slots"),
   bench: z.array(matchBenchSlotSchema).default([]),
 })

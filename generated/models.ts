@@ -11,7 +11,6 @@
 export type * from './models/User'
 export type * from './models/Team'
 export type * from './models/Player'
-export type * from './models/Formation'
 export type * from './models/Match'
 export type * from './models/MatchTeam'
 export type * from './models/MatchEvent'

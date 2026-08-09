@@ -7,7 +7,6 @@ import {
   ArrowLeft,
   Plus,
   Users,
-  LayoutTemplate,
   Loader2,
 } from "lucide-react"
 
@@ -164,24 +163,10 @@ export default function TeamRosterPage() {
                     <Users className="size-4" />
                     {players.length} players
                   </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <LayoutTemplate className="size-4" />
-                    {team._count?.formations ?? 0} formations
-                  </span>
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                render={
-                  <Link href={`/cms/teams/${team.id}/formations`} />
-                }
-              >
-                <LayoutTemplate />
-                Formations
-              </Button>
               <Button onClick={openCreate}>
                 <Plus />
                 Add player
@@ -194,7 +179,7 @@ export default function TeamRosterPage() {
               <Users className="size-10 text-muted-foreground" />
               <h3 className="text-lg font-semibold">No players yet</h3>
               <p className="text-sm text-muted-foreground">
-                Add players to build this team&apos;s roster.
+                Add players to build this team&apos;s players.
               </p>
               <Button onClick={openCreate} className="mt-2">
                 <Plus />

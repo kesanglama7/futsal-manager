@@ -1,17 +1,20 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { Check, Loader2, Save } from "lucide-react"
+import { Loader2, Save } from "lucide-react"
 
 import { useAuth } from "@/features/auth/hooks/use-auth"
-import { PitchCanvas } from "@/features/cms/components/formation/pitch-canvas"
-import { PitchPlayer } from "@/features/cms/components/formation/pitch-player"
-import { PlayerPicker } from "@/features/cms/components/formation/player-picker"
+import { PitchCanvas } from "@/features/cms/components/matches/pitch-canvas"
+import { PitchPlayer } from "@/features/cms/components/matches/pitch-player"
+import { PlayerPicker } from "@/features/cms/components/matches/player-picker"
 import { BenchPicker } from "@/features/cms/components/matches/bench-picker"
 import { resolveMediaUrl } from "@/lib/media"
-import { MATCH_SIDE } from "@/generated/enums"
+import { MATCH_SIDE, POSITION } from "@/generated/enums"
+import {
+  DEFAULT_FORMATION_SLOTS,
+  DEFAULT_FORMATION,
+} from "@/features/cms/lib/default-formation"
 import type {
-  Formation,
   Match,
   MatchTeam,
   Player,
@@ -28,9 +31,7 @@ type LoadState = "loading" | "ready" | "error"
 type Side = "HOME" | "AWAY"
 
 interface SideState {
-  formations: Formation[]
   roster: Player[]
-  formationId: number | null
   slots: FormationSlot[]
   bench: MatchBenchSlot[]
 }
@@ -45,9 +46,7 @@ interface MatchLineupViewProps {
 }
 
 const EMPTY_STATE: SideState = {
-  formations: [],
   roster: [],
-  formationId: null,
   slots: [],
   bench: [],
 }
@@ -60,6 +59,41 @@ function teamInitials(name: string) {
     .join("")
     .slice(0, 2)
     .toUpperCase()
+}
+
+/**
+ * Rebuild a side's slots onto the fixed 1-3-3 geometry. Saved lineups (from a
+ * now-removed formation system) carry their own slot coordinates, so we carry
+ * over player bindings by position: the GK goes to the GK slot, DEFENDERs to
+ * the three defence slots in order, WINGER/PIVOTs to the three attack slots.
+ */
+function hydrateSlots(saved?: FormationSlot[]): FormationSlot[] {
+  if (!saved || saved.length === 0) return DEFAULT_FORMATION
+
+  const take = (position: POSITION): number[] =>
+    saved
+      .filter((s) => s.playerId !== null && s.position === position)
+      .map((s) => s.playerId as number)
+
+  const gk = take(POSITION.GOALKEEPER)
+  const defs = take(POSITION.DEFENDER)
+  const atts = take(POSITION.WINGER).concat(take(POSITION.PIVOT))
+
+  const used = new Set<number>()
+  const next = (pool: number[]) => pool.find((pid) => !used.has(pid)) ?? null
+
+  return DEFAULT_FORMATION_SLOTS.map((slot) => {
+    let playerId: number | null = null
+    if (slot.position === POSITION.GOALKEEPER) {
+      playerId = next(gk)
+    } else if (slot.position === POSITION.DEFENDER) {
+      playerId = next(defs)
+    } else {
+      playerId = next(atts)
+    }
+    if (playerId !== null) used.add(playerId)
+    return { ...slot, playerId }
+  })
 }
 
 export function MatchLineupView({
@@ -91,18 +125,17 @@ export function MatchLineupView({
   const [benchSide, setBenchSide] = useState<Side | null>(null)
   const [benchOpen, setBenchOpen] = useState(false)
 
-  // Reflect saved lineups back into local state when the match reloads.
+  // Reflect saved lineups back into local state (mapped onto 1-3-3) when the
+  // match reloads.
   useEffect(() => {
     setHome((prev) => ({
       ...prev,
-      formationId: homeLineup?.formationId ?? null,
-      slots: homeLineup?.positions ?? [],
+      slots: hydrateSlots(homeLineup?.positions),
       bench: homeLineup?.bench ?? [],
     }))
     setAway((prev) => ({
       ...prev,
-      formationId: awayLineup?.formationId ?? null,
-      slots: awayLineup?.positions ?? [],
+      slots: hydrateSlots(awayLineup?.positions),
       bench: awayLineup?.bench ?? [],
     }))
     setDirty({ HOME: false, AWAY: false })
@@ -117,19 +150,14 @@ export function MatchLineupView({
       if (token) headers.Authorization = `Bearer ${token}`
 
       const loadSide = async (team: Team) => {
-        const [formationsRes, rosterRes] = await Promise.all([
-          fetch(`/api/cms/teams/${team.id}/formations`, { headers }),
-          fetch(`/api/cms/teams/${team.id}/players`, { headers }),
-        ])
-        const formationsData = await formationsRes.json()
+        const rosterRes = await fetch(`/api/cms/teams/${team.id}/players`, {
+          headers,
+        })
         const rosterData = await rosterRes.json()
-        if (!formationsRes.ok || !rosterRes.ok) {
-          throw new Error(
-            formationsData.error ?? rosterData.error ?? "Failed to load team data"
-          )
+        if (!rosterRes.ok) {
+          throw new Error(rosterData.error ?? "Failed to load team data")
         }
         return {
-          formations: formationsData.formations as Formation[],
           roster: rosterData.players as Player[],
         }
       }
@@ -185,15 +213,6 @@ export function MatchLineupView({
     setSaveError(null)
   }
 
-  const selectFormation = (side: Side, formation: Formation) => {
-    patchSide(side, (prev) => ({
-      ...prev,
-      formationId: formation.id,
-      // Snapshot the formation geometry; player bindings start empty.
-      slots: formation.positions.map((slot) => ({ ...slot, playerId: null })),
-    }))
-  }
-
   const setSlotPlayer = (
     side: Side,
     slotId: string,
@@ -228,7 +247,6 @@ export function MatchLineupView({
   const clearLineup = (side: Side) => {
     patchSide(side, (prev) => ({
       ...prev,
-      formationId: null,
       slots: [],
       bench: [],
     }))
@@ -253,7 +271,6 @@ export function MatchLineupView({
           method: "PUT",
           headers,
           body: JSON.stringify({
-            formationId: state.formationId,
             positions: state.slots,
             bench: state.bench,
           }),
@@ -359,36 +376,15 @@ export function MatchLineupView({
           </div>
         </div>
 
-        {/* Formation picker */}
+        {/* Formation */}
         <div>
           <div className="mb-2 text-[11px] font-black tracking-widest text-foreground uppercase">
             Formation
           </div>
-          {state.formations.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No saved formations yet. Create one under Team Management.
-            </p>
-          ) : (
-            <ul className="flex flex-col gap-1">
-              {state.formations.map((formation) => (
-                <li key={formation.id}>
-                  <Button
-                    size="sm"
-                    variant={
-                      state.formationId === formation.id ? "default" : "ghost"
-                    }
-                    className="w-full justify-between"
-                    onClick={() => selectFormation(side, formation)}
-                  >
-                    <span className="truncate">{formation.name}</span>
-                    {state.formationId === formation.id && (
-                      <Check className="size-4" />
-                    )}
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          )}
+          <p className="text-sm font-semibold">1-3-3</p>
+          <p className="text-xs text-muted-foreground">
+            1 GK · 3 defenders · 3 attack — every team uses this fixed shape.
+          </p>
         </div>
 
         {/* Counts */}
@@ -471,7 +467,7 @@ export function MatchLineupView({
           <Button
             variant="outline"
             onClick={() => clearLineup(side)}
-            disabled={saving !== null || (!state.formationId && state.slots.length === 0)}
+            disabled={saving !== null || state.slots.length === 0}
             className="w-full"
           >
             Clear lineup

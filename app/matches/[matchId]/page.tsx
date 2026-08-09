@@ -73,7 +73,9 @@ export default function MatchDetailPage() {
     }
     setLoadState("loading")
     try {
-      const res = await fetch(`/api/public/matches/${matchId}`)
+      const res = await fetch(`/api/public/matches/${matchId}`, {
+        cache: "no-store",
+      })
       const data = await res.json()
 
       if (!res.ok) {
@@ -105,9 +107,54 @@ export default function MatchDetailPage() {
     match?.matchTeams?.find((mt) => mt.side === MATCH_SIDE.AWAY) ?? null
 
   const showScore =
-    match?.status === MATCH_STATUS.FINISHED &&
+    !!match &&
     match.homeScore !== null &&
-    match.awayScore !== null
+    match.awayScore !== null &&
+    (match.status === MATCH_STATUS.FINISHED || match.status === MATCH_STATUS.LIVE)
+
+  // Live sync: silently poll for updated score/status/events without flashing
+  // the loading skeleton. While the status is LIVE we poll every 5s; while it
+  // is still SCHEDULED we poll less aggressively every 10s so a stopwatch flip
+  // to LIVE (made from the CMS) is picked up without a manual reload. Once a
+  // poll returns FINISHED the status dep toggles, the effect cleanup clears
+  // the interval, and polling stops (score/events are then final).
+  useEffect(() => {
+    if (loadState !== "ready") return
+    if (match?.status === MATCH_STATUS.FINISHED) return
+    const interval = match?.status === MATCH_STATUS.LIVE ? 5000 : 10000
+    const t = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/public/matches/${matchId}?poll=1`, {
+          cache: "no-store",
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        // The poll payload intentionally skips rosters + summary (they don't
+        // change during a match). Merge so those stay from the initial load.
+        setDetail((prev) => {
+          if (!prev) return data
+          const prevMatch = prev.match
+          const nextMatch = data.match
+          return {
+            ...data,
+            match: {
+              ...nextMatch,
+              homeTeam: nextMatch.homeTeam?.roster
+                ? nextMatch.homeTeam
+                : prevMatch?.homeTeam,
+              awayTeam: nextMatch.awayTeam?.roster
+                ? nextMatch.awayTeam
+                : prevMatch?.awayTeam,
+            },
+            summary: data.summary ?? prev.summary ?? null,
+          }
+        })
+      } catch {
+        // Keep the last good data; the next tick will retry.
+      }
+    }, interval)
+    return () => clearInterval(t)
+  }, [loadState, match?.status, matchId])
 
   const introDisabled = !home || !away
 
@@ -261,7 +308,7 @@ export default function MatchDetailPage() {
                       lineup={homeLineup?.positions ?? []}
                       bench={homeLineup?.bench ?? []}
                       players={homePlayers}
-                      formationName={homeLineup?.formation?.name}
+                      formationName="1-3-3"
                       side="Home"
                     />
                     <MatchLineupCard
@@ -269,7 +316,7 @@ export default function MatchDetailPage() {
                       lineup={awayLineup?.positions ?? []}
                       bench={awayLineup?.bench ?? []}
                       players={awayPlayers}
-                      formationName={awayLineup?.formation?.name}
+                      formationName="1-3-3"
                       side="Away"
                     />
                   </div>

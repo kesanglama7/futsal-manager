@@ -1,5 +1,4 @@
 import type {
-  FORMATION_TYPE,
   MATCH_EVENT_TYPE,
   MATCH_SIDE,
   MATCH_STATUS,
@@ -15,7 +14,6 @@ export interface Team {
   roster?: Player[]
   _count?: {
     roster: number
-    formations: number
   }
 }
 
@@ -41,16 +39,6 @@ export interface FormationSlot {
   y: number
   position: POSITION
   playerId: number | null
-}
-
-export interface Formation {
-  id: number
-  teamId: number
-  type: FORMATION_TYPE
-  name: string
-  positions: FormationSlot[]
-  createdAt: string
-  updatedAt: string
 }
 
 export interface Match {
@@ -82,13 +70,11 @@ export interface MatchTeam {
   matchId: number
   teamId: number
   side: MATCH_SIDE
-  formationId: number | null
   positions: FormationSlot[]
   bench: MatchBenchSlot[]
   createdAt: string
   updatedAt: string
   team?: Team
-  formation?: Formation | null
 }
 
 export interface MatchEvent {

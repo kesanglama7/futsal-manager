@@ -46,19 +46,6 @@ export async function PUT(
       return NextResponse.json({ error: "Match side not found" }, { status: 404 })
     }
 
-    // The formation must belong to this side's team.
-    if (parsed.data.formationId !== null) {
-      const formation = await db.formation.findFirst({
-        where: { id: parsed.data.formationId, teamId: sideEntry.teamId },
-      })
-      if (!formation) {
-        return NextResponse.json(
-          { error: "Formation does not belong to this team" },
-          { status: 400 }
-        )
-      }
-    }
-
     // Every bound slot player must be on this side's roster.
     const startingIds = [
       ...new Set(
@@ -111,16 +98,14 @@ export async function PUT(
         matchId: id,
         teamId: sideEntry.teamId,
         side: side as "HOME" | "AWAY",
-        formationId: parsed.data.formationId,
         positions: JSON.parse(JSON.stringify(parsed.data.positions)),
         bench: JSON.parse(JSON.stringify(parsed.data.bench)),
       },
       update: {
-        formationId: parsed.data.formationId,
         positions: JSON.parse(JSON.stringify(parsed.data.positions)),
         bench: JSON.parse(JSON.stringify(parsed.data.bench)),
       },
-      include: { team: true, formation: true },
+      include: { team: true },
     })
 
     return NextResponse.json({ lineup })

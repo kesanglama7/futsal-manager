@@ -12,11 +12,6 @@ enum ROLE {
   USER
 }
 
-enum FORMATION_TYPE {
-  PRESET
-  CUSTOM
-}
-
 enum POSITION {
   GOALKEEPER
   DEFENDER
@@ -61,7 +56,6 @@ model Team {
 
   players     User[]
   roster      Player[]
-  formations  Formation[]
   homeMatches Match[]      @relation("MatchHome")
   awayMatches Match[]      @relation("MatchAway")
   matchTeams  MatchTeam[]
@@ -92,22 +86,6 @@ model Player {
   @@unique([teamId, jersey])
 }
 
-model Formation {
-  id        Int            @id @default(autoincrement())
-  teamId    Int
-  type      FORMATION_TYPE
-  name      String // e.g. "2-2 Diamond" (preset) or a custom label
-  positions Json // [{ "x": 25, "y": 40, "position": "PIVOT" }, ...] max 7 slots (1 GK + 6 outfield)
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-
-  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-
-  matchTeams MatchTeam[]
-
-  @@unique([teamId, type, name])
-}
-
 model Match {
   id          Int          @id @default(autoincrement())
   homeTeamId  Int
@@ -133,15 +111,13 @@ model MatchTeam {
   matchId     Int
   teamId      Int
   side        MATCH_SIDE
-  formationId Int?
-  positions   Json // FormationSlot[] snapshot (reuses the formation slot shape); [] until a formation is chosen. Max 7 slots (1 GK + 6 outfield)
+  positions   Json // FormationSlot[] snapshot. Max 7 slots (1 GK + 6 outfield)
   bench       Json   @default("[]") // MatchBenchSlot[] snapshot: [{ playerId }]; roster players not in the starting 7
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
-  match     Match      @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  team      Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  formation Formation? @relation(fields: [formationId], references: [id], onDelete: SetNull)
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  team  Team  @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@unique([matchId, side])
   @@unique([matchId, teamId])

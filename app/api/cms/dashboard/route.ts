@@ -16,7 +16,6 @@ export async function GET(request: Request) {
     const [
       teamCount,
       playerCount,
-      formationCount,
       matchCount,
       liveCount,
       upcomingCount,
@@ -25,7 +24,6 @@ export async function GET(request: Request) {
     ] = await Promise.all([
       db.team.count(),
       db.player.count(),
-      db.formation.count(),
       db.match.count(),
       db.match.count({ where: { status: MATCH_STATUS.LIVE } }),
       db.match.count({ where: { status: MATCH_STATUS.SCHEDULED } }),
@@ -43,7 +41,6 @@ export async function GET(request: Request) {
       counts: {
         teams: teamCount,
         players: playerCount,
-        formations: formationCount,
         matches: matchCount,
         live: liveCount,
         upcoming: upcomingCount,

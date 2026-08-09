@@ -30,14 +30,12 @@ export type MatchTeamAvgAggregateOutputType = {
   id: number | null
   matchId: number | null
   teamId: number | null
-  formationId: number | null
 }
 
 export type MatchTeamSumAggregateOutputType = {
   id: number | null
   matchId: number | null
   teamId: number | null
-  formationId: number | null
 }
 
 export type MatchTeamMinAggregateOutputType = {
@@ -45,7 +43,6 @@ export type MatchTeamMinAggregateOutputType = {
   matchId: number | null
   teamId: number | null
   side: $Enums.MATCH_SIDE | null
-  formationId: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -55,7 +52,6 @@ export type MatchTeamMaxAggregateOutputType = {
   matchId: number | null
   teamId: number | null
   side: $Enums.MATCH_SIDE | null
-  formationId: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -65,7 +61,6 @@ export type MatchTeamCountAggregateOutputType = {
   matchId: number
   teamId: number
   side: number
-  formationId: number
   positions: number
   bench: number
   createdAt: number
@@ -78,14 +73,12 @@ export type MatchTeamAvgAggregateInputType = {
   id?: true
   matchId?: true
   teamId?: true
-  formationId?: true
 }
 
 export type MatchTeamSumAggregateInputType = {
   id?: true
   matchId?: true
   teamId?: true
-  formationId?: true
 }
 
 export type MatchTeamMinAggregateInputType = {
@@ -93,7 +86,6 @@ export type MatchTeamMinAggregateInputType = {
   matchId?: true
   teamId?: true
   side?: true
-  formationId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -103,7 +95,6 @@ export type MatchTeamMaxAggregateInputType = {
   matchId?: true
   teamId?: true
   side?: true
-  formationId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -113,7 +104,6 @@ export type MatchTeamCountAggregateInputType = {
   matchId?: true
   teamId?: true
   side?: true
-  formationId?: true
   positions?: true
   bench?: true
   createdAt?: true
@@ -212,7 +202,6 @@ export type MatchTeamGroupByOutputType = {
   matchId: number
   teamId: number
   side: $Enums.MATCH_SIDE
-  formationId: number | null
   positions: runtime.JsonValue
   bench: runtime.JsonValue
   createdAt: Date
@@ -247,14 +236,12 @@ export type MatchTeamWhereInput = {
   matchId?: Prisma.IntFilter<"MatchTeam"> | number
   teamId?: Prisma.IntFilter<"MatchTeam"> | number
   side?: Prisma.EnumMATCH_SIDEFilter<"MatchTeam"> | $Enums.MATCH_SIDE
-  formationId?: Prisma.IntNullableFilter<"MatchTeam"> | number | null
   positions?: Prisma.JsonFilter<"MatchTeam">
   bench?: Prisma.JsonFilter<"MatchTeam">
   createdAt?: Prisma.DateTimeFilter<"MatchTeam"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MatchTeam"> | Date | string
   match?: Prisma.XOR<Prisma.MatchScalarRelationFilter, Prisma.MatchWhereInput>
   team?: Prisma.XOR<Prisma.TeamScalarRelationFilter, Prisma.TeamWhereInput>
-  formation?: Prisma.XOR<Prisma.FormationNullableScalarRelationFilter, Prisma.FormationWhereInput> | null
 }
 
 export type MatchTeamOrderByWithRelationInput = {
@@ -262,14 +249,12 @@ export type MatchTeamOrderByWithRelationInput = {
   matchId?: Prisma.SortOrder
   teamId?: Prisma.SortOrder
   side?: Prisma.SortOrder
-  formationId?: Prisma.SortOrderInput | Prisma.SortOrder
   positions?: Prisma.SortOrder
   bench?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   match?: Prisma.MatchOrderByWithRelationInput
   team?: Prisma.TeamOrderByWithRelationInput
-  formation?: Prisma.FormationOrderByWithRelationInput
 }
 
 export type MatchTeamWhereUniqueInput = Prisma.AtLeast<{
@@ -282,14 +267,12 @@ export type MatchTeamWhereUniqueInput = Prisma.AtLeast<{
   matchId?: Prisma.IntFilter<"MatchTeam"> | number
   teamId?: Prisma.IntFilter<"MatchTeam"> | number
   side?: Prisma.EnumMATCH_SIDEFilter<"MatchTeam"> | $Enums.MATCH_SIDE
-  formationId?: Prisma.IntNullableFilter<"MatchTeam"> | number | null
   positions?: Prisma.JsonFilter<"MatchTeam">
   bench?: Prisma.JsonFilter<"MatchTeam">
   createdAt?: Prisma.DateTimeFilter<"MatchTeam"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MatchTeam"> | Date | string
   match?: Prisma.XOR<Prisma.MatchScalarRelationFilter, Prisma.MatchWhereInput>
   team?: Prisma.XOR<Prisma.TeamScalarRelationFilter, Prisma.TeamWhereInput>
-  formation?: Prisma.XOR<Prisma.FormationNullableScalarRelationFilter, Prisma.FormationWhereInput> | null
 }, "id" | "matchId_side" | "matchId_teamId">
 
 export type MatchTeamOrderByWithAggregationInput = {
@@ -297,7 +280,6 @@ export type MatchTeamOrderByWithAggregationInput = {
   matchId?: Prisma.SortOrder
   teamId?: Prisma.SortOrder
   side?: Prisma.SortOrder
-  formationId?: Prisma.SortOrderInput | Prisma.SortOrder
   positions?: Prisma.SortOrder
   bench?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -317,7 +299,6 @@ export type MatchTeamScalarWhereWithAggregatesInput = {
   matchId?: Prisma.IntWithAggregatesFilter<"MatchTeam"> | number
   teamId?: Prisma.IntWithAggregatesFilter<"MatchTeam"> | number
   side?: Prisma.EnumMATCH_SIDEWithAggregatesFilter<"MatchTeam"> | $Enums.MATCH_SIDE
-  formationId?: Prisma.IntNullableWithAggregatesFilter<"MatchTeam"> | number | null
   positions?: Prisma.JsonWithAggregatesFilter<"MatchTeam">
   bench?: Prisma.JsonWithAggregatesFilter<"MatchTeam">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"MatchTeam"> | Date | string
@@ -332,7 +313,6 @@ export type MatchTeamCreateInput = {
   updatedAt?: Date | string
   match: Prisma.MatchCreateNestedOneWithoutMatchTeamsInput
   team: Prisma.TeamCreateNestedOneWithoutMatchTeamsInput
-  formation?: Prisma.FormationCreateNestedOneWithoutMatchTeamsInput
 }
 
 export type MatchTeamUncheckedCreateInput = {
@@ -340,7 +320,6 @@ export type MatchTeamUncheckedCreateInput = {
   matchId: number
   teamId: number
   side: $Enums.MATCH_SIDE
-  formationId?: number | null
   positions: Prisma.JsonNullValueInput | runtime.InputJsonValue
   bench?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -355,7 +334,6 @@ export type MatchTeamUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   match?: Prisma.MatchUpdateOneRequiredWithoutMatchTeamsNestedInput
   team?: Prisma.TeamUpdateOneRequiredWithoutMatchTeamsNestedInput
-  formation?: Prisma.FormationUpdateOneWithoutMatchTeamsNestedInput
 }
 
 export type MatchTeamUncheckedUpdateInput = {
@@ -363,7 +341,6 @@ export type MatchTeamUncheckedUpdateInput = {
   matchId?: Prisma.IntFieldUpdateOperationsInput | number
   teamId?: Prisma.IntFieldUpdateOperationsInput | number
   side?: Prisma.EnumMATCH_SIDEFieldUpdateOperationsInput | $Enums.MATCH_SIDE
-  formationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   positions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   bench?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -375,7 +352,6 @@ export type MatchTeamCreateManyInput = {
   matchId: number
   teamId: number
   side: $Enums.MATCH_SIDE
-  formationId?: number | null
   positions: Prisma.JsonNullValueInput | runtime.InputJsonValue
   bench?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -395,7 +371,6 @@ export type MatchTeamUncheckedUpdateManyInput = {
   matchId?: Prisma.IntFieldUpdateOperationsInput | number
   teamId?: Prisma.IntFieldUpdateOperationsInput | number
   side?: Prisma.EnumMATCH_SIDEFieldUpdateOperationsInput | $Enums.MATCH_SIDE
-  formationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   positions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   bench?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -427,7 +402,6 @@ export type MatchTeamCountOrderByAggregateInput = {
   matchId?: Prisma.SortOrder
   teamId?: Prisma.SortOrder
   side?: Prisma.SortOrder
-  formationId?: Prisma.SortOrder
   positions?: Prisma.SortOrder
   bench?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -438,7 +412,6 @@ export type MatchTeamAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   matchId?: Prisma.SortOrder
   teamId?: Prisma.SortOrder
-  formationId?: Prisma.SortOrder
 }
 
 export type MatchTeamMaxOrderByAggregateInput = {
@@ -446,7 +419,6 @@ export type MatchTeamMaxOrderByAggregateInput = {
   matchId?: Prisma.SortOrder
   teamId?: Prisma.SortOrder
   side?: Prisma.SortOrder
-  formationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -456,7 +428,6 @@ export type MatchTeamMinOrderByAggregateInput = {
   matchId?: Prisma.SortOrder
   teamId?: Prisma.SortOrder
   side?: Prisma.SortOrder
-  formationId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -465,7 +436,6 @@ export type MatchTeamSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   matchId?: Prisma.SortOrder
   teamId?: Prisma.SortOrder
-  formationId?: Prisma.SortOrder
 }
 
 export type MatchTeamCreateNestedManyWithoutTeamInput = {
@@ -507,48 +477,6 @@ export type MatchTeamUncheckedUpdateManyWithoutTeamNestedInput = {
   connect?: Prisma.MatchTeamWhereUniqueInput | Prisma.MatchTeamWhereUniqueInput[]
   update?: Prisma.MatchTeamUpdateWithWhereUniqueWithoutTeamInput | Prisma.MatchTeamUpdateWithWhereUniqueWithoutTeamInput[]
   updateMany?: Prisma.MatchTeamUpdateManyWithWhereWithoutTeamInput | Prisma.MatchTeamUpdateManyWithWhereWithoutTeamInput[]
-  deleteMany?: Prisma.MatchTeamScalarWhereInput | Prisma.MatchTeamScalarWhereInput[]
-}
-
-export type MatchTeamCreateNestedManyWithoutFormationInput = {
-  create?: Prisma.XOR<Prisma.MatchTeamCreateWithoutFormationInput, Prisma.MatchTeamUncheckedCreateWithoutFormationInput> | Prisma.MatchTeamCreateWithoutFormationInput[] | Prisma.MatchTeamUncheckedCreateWithoutFormationInput[]
-  connectOrCreate?: Prisma.MatchTeamCreateOrConnectWithoutFormationInput | Prisma.MatchTeamCreateOrConnectWithoutFormationInput[]
-  createMany?: Prisma.MatchTeamCreateManyFormationInputEnvelope
-  connect?: Prisma.MatchTeamWhereUniqueInput | Prisma.MatchTeamWhereUniqueInput[]
-}
-
-export type MatchTeamUncheckedCreateNestedManyWithoutFormationInput = {
-  create?: Prisma.XOR<Prisma.MatchTeamCreateWithoutFormationInput, Prisma.MatchTeamUncheckedCreateWithoutFormationInput> | Prisma.MatchTeamCreateWithoutFormationInput[] | Prisma.MatchTeamUncheckedCreateWithoutFormationInput[]
-  connectOrCreate?: Prisma.MatchTeamCreateOrConnectWithoutFormationInput | Prisma.MatchTeamCreateOrConnectWithoutFormationInput[]
-  createMany?: Prisma.MatchTeamCreateManyFormationInputEnvelope
-  connect?: Prisma.MatchTeamWhereUniqueInput | Prisma.MatchTeamWhereUniqueInput[]
-}
-
-export type MatchTeamUpdateManyWithoutFormationNestedInput = {
-  create?: Prisma.XOR<Prisma.MatchTeamCreateWithoutFormationInput, Prisma.MatchTeamUncheckedCreateWithoutFormationInput> | Prisma.MatchTeamCreateWithoutFormationInput[] | Prisma.MatchTeamUncheckedCreateWithoutFormationInput[]
-  connectOrCreate?: Prisma.MatchTeamCreateOrConnectWithoutFormationInput | Prisma.MatchTeamCreateOrConnectWithoutFormationInput[]
-  upsert?: Prisma.MatchTeamUpsertWithWhereUniqueWithoutFormationInput | Prisma.MatchTeamUpsertWithWhereUniqueWithoutFormationInput[]
-  createMany?: Prisma.MatchTeamCreateManyFormationInputEnvelope
-  set?: Prisma.MatchTeamWhereUniqueInput | Prisma.MatchTeamWhereUniqueInput[]
-  disconnect?: Prisma.MatchTeamWhereUniqueInput | Prisma.MatchTeamWhereUniqueInput[]
-  delete?: Prisma.MatchTeamWhereUniqueInput | Prisma.MatchTeamWhereUniqueInput[]
-  connect?: Prisma.MatchTeamWhereUniqueInput | Prisma.MatchTeamWhereUniqueInput[]
-  update?: Prisma.MatchTeamUpdateWithWhereUniqueWithoutFormationInput | Prisma.MatchTeamUpdateWithWhereUniqueWithoutFormationInput[]
-  updateMany?: Prisma.MatchTeamUpdateManyWithWhereWithoutFormationInput | Prisma.MatchTeamUpdateManyWithWhereWithoutFormationInput[]
-  deleteMany?: Prisma.MatchTeamScalarWhereInput | Prisma.MatchTeamScalarWhereInput[]
-}
-
-export type MatchTeamUncheckedUpdateManyWithoutFormationNestedInput = {
-  create?: Prisma.XOR<Prisma.MatchTeamCreateWithoutFormationInput, Prisma.MatchTeamUncheckedCreateWithoutFormationInput> | Prisma.MatchTeamCreateWithoutFormationInput[] | Prisma.MatchTeamUncheckedCreateWithoutFormationInput[]
-  connectOrCreate?: Prisma.MatchTeamCreateOrConnectWithoutFormationInput | Prisma.MatchTeamCreateOrConnectWithoutFormationInput[]
-  upsert?: Prisma.MatchTeamUpsertWithWhereUniqueWithoutFormationInput | Prisma.MatchTeamUpsertWithWhereUniqueWithoutFormationInput[]
-  createMany?: Prisma.MatchTeamCreateManyFormationInputEnvelope
-  set?: Prisma.MatchTeamWhereUniqueInput | Prisma.MatchTeamWhereUniqueInput[]
-  disconnect?: Prisma.MatchTeamWhereUniqueInput | Prisma.MatchTeamWhereUniqueInput[]
-  delete?: Prisma.MatchTeamWhereUniqueInput | Prisma.MatchTeamWhereUniqueInput[]
-  connect?: Prisma.MatchTeamWhereUniqueInput | Prisma.MatchTeamWhereUniqueInput[]
-  update?: Prisma.MatchTeamUpdateWithWhereUniqueWithoutFormationInput | Prisma.MatchTeamUpdateWithWhereUniqueWithoutFormationInput[]
-  updateMany?: Prisma.MatchTeamUpdateManyWithWhereWithoutFormationInput | Prisma.MatchTeamUpdateManyWithWhereWithoutFormationInput[]
   deleteMany?: Prisma.MatchTeamScalarWhereInput | Prisma.MatchTeamScalarWhereInput[]
 }
 
@@ -605,14 +533,12 @@ export type MatchTeamCreateWithoutTeamInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   match: Prisma.MatchCreateNestedOneWithoutMatchTeamsInput
-  formation?: Prisma.FormationCreateNestedOneWithoutMatchTeamsInput
 }
 
 export type MatchTeamUncheckedCreateWithoutTeamInput = {
   id?: number
   matchId: number
   side: $Enums.MATCH_SIDE
-  formationId?: number | null
   positions: Prisma.JsonNullValueInput | runtime.InputJsonValue
   bench?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -653,58 +579,10 @@ export type MatchTeamScalarWhereInput = {
   matchId?: Prisma.IntFilter<"MatchTeam"> | number
   teamId?: Prisma.IntFilter<"MatchTeam"> | number
   side?: Prisma.EnumMATCH_SIDEFilter<"MatchTeam"> | $Enums.MATCH_SIDE
-  formationId?: Prisma.IntNullableFilter<"MatchTeam"> | number | null
   positions?: Prisma.JsonFilter<"MatchTeam">
   bench?: Prisma.JsonFilter<"MatchTeam">
   createdAt?: Prisma.DateTimeFilter<"MatchTeam"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MatchTeam"> | Date | string
-}
-
-export type MatchTeamCreateWithoutFormationInput = {
-  side: $Enums.MATCH_SIDE
-  positions: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  bench?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  match: Prisma.MatchCreateNestedOneWithoutMatchTeamsInput
-  team: Prisma.TeamCreateNestedOneWithoutMatchTeamsInput
-}
-
-export type MatchTeamUncheckedCreateWithoutFormationInput = {
-  id?: number
-  matchId: number
-  teamId: number
-  side: $Enums.MATCH_SIDE
-  positions: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  bench?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type MatchTeamCreateOrConnectWithoutFormationInput = {
-  where: Prisma.MatchTeamWhereUniqueInput
-  create: Prisma.XOR<Prisma.MatchTeamCreateWithoutFormationInput, Prisma.MatchTeamUncheckedCreateWithoutFormationInput>
-}
-
-export type MatchTeamCreateManyFormationInputEnvelope = {
-  data: Prisma.MatchTeamCreateManyFormationInput | Prisma.MatchTeamCreateManyFormationInput[]
-  skipDuplicates?: boolean
-}
-
-export type MatchTeamUpsertWithWhereUniqueWithoutFormationInput = {
-  where: Prisma.MatchTeamWhereUniqueInput
-  update: Prisma.XOR<Prisma.MatchTeamUpdateWithoutFormationInput, Prisma.MatchTeamUncheckedUpdateWithoutFormationInput>
-  create: Prisma.XOR<Prisma.MatchTeamCreateWithoutFormationInput, Prisma.MatchTeamUncheckedCreateWithoutFormationInput>
-}
-
-export type MatchTeamUpdateWithWhereUniqueWithoutFormationInput = {
-  where: Prisma.MatchTeamWhereUniqueInput
-  data: Prisma.XOR<Prisma.MatchTeamUpdateWithoutFormationInput, Prisma.MatchTeamUncheckedUpdateWithoutFormationInput>
-}
-
-export type MatchTeamUpdateManyWithWhereWithoutFormationInput = {
-  where: Prisma.MatchTeamScalarWhereInput
-  data: Prisma.XOR<Prisma.MatchTeamUpdateManyMutationInput, Prisma.MatchTeamUncheckedUpdateManyWithoutFormationInput>
 }
 
 export type MatchTeamCreateWithoutMatchInput = {
@@ -714,14 +592,12 @@ export type MatchTeamCreateWithoutMatchInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   team: Prisma.TeamCreateNestedOneWithoutMatchTeamsInput
-  formation?: Prisma.FormationCreateNestedOneWithoutMatchTeamsInput
 }
 
 export type MatchTeamUncheckedCreateWithoutMatchInput = {
   id?: number
   teamId: number
   side: $Enums.MATCH_SIDE
-  formationId?: number | null
   positions: Prisma.JsonNullValueInput | runtime.InputJsonValue
   bench?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -758,7 +634,6 @@ export type MatchTeamCreateManyTeamInput = {
   id?: number
   matchId: number
   side: $Enums.MATCH_SIDE
-  formationId?: number | null
   positions: Prisma.JsonNullValueInput | runtime.InputJsonValue
   bench?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -772,14 +647,12 @@ export type MatchTeamUpdateWithoutTeamInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   match?: Prisma.MatchUpdateOneRequiredWithoutMatchTeamsNestedInput
-  formation?: Prisma.FormationUpdateOneWithoutMatchTeamsNestedInput
 }
 
 export type MatchTeamUncheckedUpdateWithoutTeamInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   matchId?: Prisma.IntFieldUpdateOperationsInput | number
   side?: Prisma.EnumMATCH_SIDEFieldUpdateOperationsInput | $Enums.MATCH_SIDE
-  formationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   positions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   bench?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -789,50 +662,6 @@ export type MatchTeamUncheckedUpdateWithoutTeamInput = {
 export type MatchTeamUncheckedUpdateManyWithoutTeamInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   matchId?: Prisma.IntFieldUpdateOperationsInput | number
-  side?: Prisma.EnumMATCH_SIDEFieldUpdateOperationsInput | $Enums.MATCH_SIDE
-  formationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  positions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  bench?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type MatchTeamCreateManyFormationInput = {
-  id?: number
-  matchId: number
-  teamId: number
-  side: $Enums.MATCH_SIDE
-  positions: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  bench?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type MatchTeamUpdateWithoutFormationInput = {
-  side?: Prisma.EnumMATCH_SIDEFieldUpdateOperationsInput | $Enums.MATCH_SIDE
-  positions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  bench?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  match?: Prisma.MatchUpdateOneRequiredWithoutMatchTeamsNestedInput
-  team?: Prisma.TeamUpdateOneRequiredWithoutMatchTeamsNestedInput
-}
-
-export type MatchTeamUncheckedUpdateWithoutFormationInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  matchId?: Prisma.IntFieldUpdateOperationsInput | number
-  teamId?: Prisma.IntFieldUpdateOperationsInput | number
-  side?: Prisma.EnumMATCH_SIDEFieldUpdateOperationsInput | $Enums.MATCH_SIDE
-  positions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  bench?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type MatchTeamUncheckedUpdateManyWithoutFormationInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  matchId?: Prisma.IntFieldUpdateOperationsInput | number
-  teamId?: Prisma.IntFieldUpdateOperationsInput | number
   side?: Prisma.EnumMATCH_SIDEFieldUpdateOperationsInput | $Enums.MATCH_SIDE
   positions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   bench?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -844,7 +673,6 @@ export type MatchTeamCreateManyMatchInput = {
   id?: number
   teamId: number
   side: $Enums.MATCH_SIDE
-  formationId?: number | null
   positions: Prisma.JsonNullValueInput | runtime.InputJsonValue
   bench?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -858,14 +686,12 @@ export type MatchTeamUpdateWithoutMatchInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneRequiredWithoutMatchTeamsNestedInput
-  formation?: Prisma.FormationUpdateOneWithoutMatchTeamsNestedInput
 }
 
 export type MatchTeamUncheckedUpdateWithoutMatchInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   teamId?: Prisma.IntFieldUpdateOperationsInput | number
   side?: Prisma.EnumMATCH_SIDEFieldUpdateOperationsInput | $Enums.MATCH_SIDE
-  formationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   positions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   bench?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -876,7 +702,6 @@ export type MatchTeamUncheckedUpdateManyWithoutMatchInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   teamId?: Prisma.IntFieldUpdateOperationsInput | number
   side?: Prisma.EnumMATCH_SIDEFieldUpdateOperationsInput | $Enums.MATCH_SIDE
-  formationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   positions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   bench?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -890,14 +715,12 @@ export type MatchTeamSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   matchId?: boolean
   teamId?: boolean
   side?: boolean
-  formationId?: boolean
   positions?: boolean
   bench?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   match?: boolean | Prisma.MatchDefaultArgs<ExtArgs>
   team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
-  formation?: boolean | Prisma.MatchTeam$formationArgs<ExtArgs>
 }, ExtArgs["result"]["matchTeam"]>
 
 export type MatchTeamSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -905,14 +728,12 @@ export type MatchTeamSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   matchId?: boolean
   teamId?: boolean
   side?: boolean
-  formationId?: boolean
   positions?: boolean
   bench?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   match?: boolean | Prisma.MatchDefaultArgs<ExtArgs>
   team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
-  formation?: boolean | Prisma.MatchTeam$formationArgs<ExtArgs>
 }, ExtArgs["result"]["matchTeam"]>
 
 export type MatchTeamSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -920,14 +741,12 @@ export type MatchTeamSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   matchId?: boolean
   teamId?: boolean
   side?: boolean
-  formationId?: boolean
   positions?: boolean
   bench?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   match?: boolean | Prisma.MatchDefaultArgs<ExtArgs>
   team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
-  formation?: boolean | Prisma.MatchTeam$formationArgs<ExtArgs>
 }, ExtArgs["result"]["matchTeam"]>
 
 export type MatchTeamSelectScalar = {
@@ -935,28 +754,24 @@ export type MatchTeamSelectScalar = {
   matchId?: boolean
   teamId?: boolean
   side?: boolean
-  formationId?: boolean
   positions?: boolean
   bench?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type MatchTeamOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "matchId" | "teamId" | "side" | "formationId" | "positions" | "bench" | "createdAt" | "updatedAt", ExtArgs["result"]["matchTeam"]>
+export type MatchTeamOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "matchId" | "teamId" | "side" | "positions" | "bench" | "createdAt" | "updatedAt", ExtArgs["result"]["matchTeam"]>
 export type MatchTeamInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   match?: boolean | Prisma.MatchDefaultArgs<ExtArgs>
   team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
-  formation?: boolean | Prisma.MatchTeam$formationArgs<ExtArgs>
 }
 export type MatchTeamIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   match?: boolean | Prisma.MatchDefaultArgs<ExtArgs>
   team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
-  formation?: boolean | Prisma.MatchTeam$formationArgs<ExtArgs>
 }
 export type MatchTeamIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   match?: boolean | Prisma.MatchDefaultArgs<ExtArgs>
   team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
-  formation?: boolean | Prisma.MatchTeam$formationArgs<ExtArgs>
 }
 
 export type $MatchTeamPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -964,14 +779,12 @@ export type $MatchTeamPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   objects: {
     match: Prisma.$MatchPayload<ExtArgs>
     team: Prisma.$TeamPayload<ExtArgs>
-    formation: Prisma.$FormationPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     matchId: number
     teamId: number
     side: $Enums.MATCH_SIDE
-    formationId: number | null
     positions: runtime.JsonValue
     bench: runtime.JsonValue
     createdAt: Date
@@ -1372,7 +1185,6 @@ export interface Prisma__MatchTeamClient<T, Null = never, ExtArgs extends runtim
   readonly [Symbol.toStringTag]: "PrismaPromise"
   match<T extends Prisma.MatchDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MatchDefaultArgs<ExtArgs>>): Prisma.Prisma__MatchClient<runtime.Types.Result.GetResult<Prisma.$MatchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   team<T extends Prisma.TeamDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TeamDefaultArgs<ExtArgs>>): Prisma.Prisma__TeamClient<runtime.Types.Result.GetResult<Prisma.$TeamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  formation<T extends Prisma.MatchTeam$formationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MatchTeam$formationArgs<ExtArgs>>): Prisma.Prisma__FormationClient<runtime.Types.Result.GetResult<Prisma.$FormationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1406,7 +1218,6 @@ export interface MatchTeamFieldRefs {
   readonly matchId: Prisma.FieldRef<"MatchTeam", 'Int'>
   readonly teamId: Prisma.FieldRef<"MatchTeam", 'Int'>
   readonly side: Prisma.FieldRef<"MatchTeam", 'MATCH_SIDE'>
-  readonly formationId: Prisma.FieldRef<"MatchTeam", 'Int'>
   readonly positions: Prisma.FieldRef<"MatchTeam", 'Json'>
   readonly bench: Prisma.FieldRef<"MatchTeam", 'Json'>
   readonly createdAt: Prisma.FieldRef<"MatchTeam", 'DateTime'>
@@ -1809,25 +1620,6 @@ export type MatchTeamDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Limit how many MatchTeams to delete.
    */
   limit?: number
-}
-
-/**
- * MatchTeam.formation
- */
-export type MatchTeam$formationArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Formation
-   */
-  select?: Prisma.FormationSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Formation
-   */
-  omit?: Prisma.FormationOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.FormationInclude<ExtArgs> | null
-  where?: Prisma.FormationWhereInput
 }
 
 /**

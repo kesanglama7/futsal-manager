@@ -16,27 +16,49 @@ export async function GET(
     return NextResponse.json({ error: "Invalid match id" }, { status: 400 })
   }
 
+  // Lightweight polling payload: the detail page polls every 5-10s while a
+  // match is live/upcoming. During that window only the scoreboard, status
+  // and lineup/events change — head-to-head stats and full rosters do not, so
+  // skip them to keep each poll cheap. The initial (non-poll) load still
+  // returns everything needed to render the Lineups tab.
+  const isPoll = new URL(request.url).searchParams.get("poll") === "1"
+
   try {
     const match = await db.match.findUnique({
       where: { id },
-      include: {
-        homeTeam: { include: { roster: { orderBy: { jersey: "asc" } } } },
-        awayTeam: { include: { roster: { orderBy: { jersey: "asc" } } } },
-        matchTeams: { include: { team: true, formation: true } },
-        events: {
-          include: { team: true, player: true },
-          orderBy: { minute: "asc" },
-        },
-      },
+      include: isPoll
+        ? {
+            homeTeam: true,
+            awayTeam: true,
+            matchTeams: { include: { team: true } },
+            events: {
+              include: { team: true, player: true },
+              orderBy: { minute: "asc" },
+            },
+          }
+        : {
+            homeTeam: { include: { roster: { orderBy: { jersey: "asc" } } } },
+            awayTeam: { include: { roster: { orderBy: { jersey: "asc" } } } },
+            matchTeams: { include: { team: true } },
+            events: {
+              include: { team: true, player: true },
+              orderBy: { minute: "asc" },
+            },
+          },
     })
 
     if (!match) {
       return NextResponse.json({ error: "Match not found" }, { status: 404 })
     }
 
-    const summary = await buildSummary(match.homeTeamId, match.awayTeamId)
+    const summary = isPoll
+      ? null
+      : await buildSummary(match.homeTeamId, match.awayTeamId)
 
-    return NextResponse.json({ match, summary })
+    return NextResponse.json(
+      { match, summary },
+      { headers: { "Cache-Control": "no-store" } }
+    )
   } catch (error) {
     console.error("Public get match error:", error)
     return NextResponse.json(

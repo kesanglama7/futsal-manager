@@ -17,14 +17,6 @@ export const ROLE = {
 export type ROLE = (typeof ROLE)[keyof typeof ROLE]
 
 
-export const FORMATION_TYPE = {
-  PRESET: 'PRESET',
-  CUSTOM: 'CUSTOM'
-} as const
-
-export type FORMATION_TYPE = (typeof FORMATION_TYPE)[keyof typeof FORMATION_TYPE]
-
-
 export const POSITION = {
   GOALKEEPER: 'GOALKEEPER',
   DEFENDER: 'DEFENDER',

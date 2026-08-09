@@ -9,7 +9,7 @@ import type {
 } from "@/features/cms/types/cms-types"
 import { teamAccent } from "@/features/public/components/matches/team-accent"
 import { MatchPitchPlayer } from "@/features/public/components/matches/match-pitch-player"
-import { PitchCanvas } from "@/features/cms/components/formation/pitch-canvas"
+import { PitchCanvas } from "@/features/cms/components/matches/pitch-canvas"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 function initials(name: string) {
@@ -73,13 +73,13 @@ export function MatchLineupCard({
         <div className="min-w-0">
           <div className="truncate font-display text-2xl font-black uppercase">{team.name}</div>
           <div className="text-xs tracking-widest text-muted-foreground uppercase">
-            {side} · {formationName ?? "No formation selected"}
+            {side} · {formationName ?? "1-3-3"}
           </div>
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="mx-auto w-full max-w-xs">
+        <div className="mx-auto w-full max-w-[15rem] sm:max-w-[19rem] lg:max-w-[24rem]">
           <PitchCanvas>
             {lineup.map((slot) => {
               const player = slot.playerId
@@ -99,7 +99,7 @@ export function MatchLineupCard({
           </PitchCanvas>
         </div>
 
-        <div>
+        <div className="min-w-0">
           {roster.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               Lineup not set yet.

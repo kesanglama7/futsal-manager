@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react"
 import {
   Shield,
   Users,
-  LayoutTemplate,
   CalendarClock,
   Radio,
   Clock,
@@ -36,7 +35,6 @@ interface DashboardResponse {
   counts: {
     teams: number
     players: number
-    formations: number
     matches: number
     live: number
     upcoming: number
@@ -141,7 +139,6 @@ export default function CMSPage() {
   const kpis = [
     { label: "Teams", value: counts.teams, icon: Shield, href: "/cms/teams" },
     { label: "Players", value: counts.players, icon: Users, href: "/cms/teams" },
-    { label: "Formations", value: counts.formations, icon: LayoutTemplate, href: "/cms/teams" },
     { label: "Matches", value: counts.matches, icon: CalendarClock, href: "/cms/matches" },
     { label: "Live", value: counts.live, icon: Radio, href: "/cms/matches", live: true },
     { label: "Upcoming", value: counts.upcoming, icon: Clock, href: "/cms/matches" },

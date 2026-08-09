@@ -10,7 +10,8 @@ import type {
   Team,
 } from "@/features/cms/types/cms-types"
 import { teamAccent } from "@/features/public/components/matches/team-accent"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { PitchCanvas } from "@/features/cms/components/matches/pitch-canvas"
+import { POSITION } from "@/generated/enums"
 import { cn } from "@/lib/utils"
 
 function initials(name: string) {
@@ -22,17 +23,6 @@ function initials(name: string) {
     .slice(0, 2)
     .toUpperCase()
 }
-
-/** 7-a-side broadcast layout on the mini formation board: 1 GK + 6 outfield. */
-const POS7: { x: number; y: number }[] = [
-  { x: 50, y: 90 }, // GK
-  { x: 26, y: 72 },
-  { x: 74, y: 72 },
-  { x: 16, y: 48 },
-  { x: 84, y: 48 },
-  { x: 36, y: 24 },
-  { x: 64, y: 24 },
-]
 
 const GROUP_MS = 2200
 
@@ -66,7 +56,11 @@ export function MatchLineupReveal({
 }: MatchLineupRevealProps) {
   const accent = teamAccent(team)
 
-  // Full 7-man squad: GK first, then outfield by jersey.
+  // Full 7-man squad ordered by the 1-3-3 shape: GK, then 3 defenders, then
+  // 3 attackers (wingers/pivot). Falls back to jersey order if a side is
+  // missing players so the reveal still looks sensible. Each entry keeps its
+  // stored slot coordinates so the mini-board can place dots at the real
+  // formation positions instead of a fixed preset.
   const roster = lineup
     .map((slot) => ({
       slot,
@@ -74,19 +68,39 @@ export function MatchLineupReveal({
         ? players.find((p) => p.id === slot.playerId) ?? null
         : null,
     }))
-    .filter((row) => row.player !== null)
+    .filter((row): row is { slot: FormationSlot; player: Player } => row.player !== null)
+  const orderWeight = (position: POSITION): number => {
+    switch (position) {
+      case POSITION.GOALKEEPER:
+        return 0
+      case POSITION.DEFENDER:
+        return 1
+      case POSITION.WINGER:
+      case POSITION.PIVOT:
+        return 2
+    }
+  }
   const squad = roster
-    .map((row) => row.player!)
-    .sort((a, b) => (a.position === "GOALKEEPER" ? -1 : b.position === "GOALKEEPER" ? 1 : a.jersey - b.jersey))
+    .slice()
+    .sort(
+      (a, b) =>
+        orderWeight(a.slot.position) - orderWeight(b.slot.position) ||
+        a.player.jersey - b.player.jersey
+    )
+    .map((row) => ({ player: row.player, slot: row.slot }))
 
   const benchPlayers = bench
     .map((b) => players.find((p) => p.id === b.playerId) ?? null)
     .filter((p): p is Player => !!p)
 
-  // Groups: keeper alone, then trios.
-  const groups: Player[][] = [squad.slice(0, 1), squad.slice(1, 4), squad.slice(4, 7)].filter(
-    (g) => g.length > 0
-  )
+  const squadPlayers = squad.map((row) => row.player)
+
+  // Groups: keeper alone, defenders (3), attackers (3).
+  const groups: Player[][] = [
+    squadPlayers.slice(0, 1),
+    squadPlayers.slice(1, 4),
+    squadPlayers.slice(4, 7),
+  ].filter((g) => g.length > 0)
 
   const [gi, setGi] = useState(0)
   useEffect(() => {
@@ -98,7 +112,7 @@ export function MatchLineupReveal({
   const revealedCount = groups.slice(0, gi + 1).reduce((n, g) => n + g.length, 0)
 
   const photoUrl = resolveMediaUrl(team.logo)
-  const lowerThird = squad.map((p) => `${p.jersey} ${p.name.split(" ").slice(-1)[0]}`).join("   ·   ")
+  const lowerThird = squadPlayers.map((p) => `${p.jersey} ${p.name.split(" ").slice(-1)[0]}`).join("   ·   ")
   const benchThird = benchPlayers
     .map((p) => `${p.jersey} ${p.name.split(" ").slice(-1)[0]}`)
     .join("   ·   ")
@@ -158,15 +172,15 @@ export function MatchLineupReveal({
       >
         {/* Mini formation board rail */}
         <div
-          className="hidden w-40 shrink-0 self-center overflow-hidden rounded-sm shadow-2xl md:block lg:w-56 animate-in slide-in-from-left-1/2 duration-500"
+          className="hidden w-[clamp(9rem,18vw,17rem)] shrink-0 self-center overflow-hidden rounded-sm shadow-2xl md:block lg:w-[clamp(11rem,16vw,18rem)] animate-in slide-in-from-left-1/2 duration-500"
           style={{ background: `linear-gradient(180deg, ${accent.primary}dd, ${accent.primary}88)` }}
         >
           <MiniBoard accent={accent} squad={squad} revealed={revealedCount} />
         </div>
 
         {/* Player cutout stage */}
-        <div className="relative flex h-full min-w-0 flex-1 items-center justify-center">
-          <div key={gi} className="flex h-full w-full items-center justify-center gap-1.5 sm:gap-3 md:gap-8">
+        <div className="relative flex h-full min-w-0 flex-1 items-center justify-center px-1">
+          <div key={gi} className="flex h-full w-full items-center justify-center gap-1.5 sm:gap-4 md:gap-8">
             {groups[gi]?.map((p, i) => (
               <Cutout
                 key={p.id}
@@ -273,7 +287,9 @@ function Cutout({
       onClick={onClick}
       className={cn(
         "group relative flex h-full min-w-0 flex-1 cursor-pointer flex-col items-center justify-center",
-        single ? "max-w-[220px] md:max-w-[320px]" : "max-w-[150px] md:max-w-[240px]"
+        single
+          ? "max-w-[clamp(10rem,22vw,22rem)]"
+          : "max-w-[clamp(6.5rem,15vw,15rem)]"
       )}
       style={{ animation: `cutout-in 0.6s ${delay}s cubic-bezier(0.34,1.56,0.64,1) both` }}
     >
@@ -283,17 +299,17 @@ function Cutout({
         style={{ background: `radial-gradient(circle, ${accent.primary}66, transparent 70%)` }}
       />
 
-      {/* cutout image */}
-      <div className="relative flex min-h-0 w-full flex-1 items-end justify-center">
+      {/* cutout image — fixed-height, centered, scales with the viewport */}
+      <div className="relative flex min-h-0 w-full flex-1 items-center justify-center">
         {photoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={photoUrl}
             alt={player.name}
-            className="h-full w-full object-contain object-bottom drop-shadow-[0_18px_28px_rgba(0,0,0,0.75)]"
+            className="mx-auto max-h-full w-auto max-w-full object-contain object-bottom drop-shadow-[0_18px_28px_rgba(0,0,0,0.75)]"
           />
         ) : (
-          <div className="flex h-3/4 w-3/4 items-center justify-center rounded-full border-2 border-white/20 bg-gradient-to-b from-white/15 to-white/5">
+          <div className="mx-auto flex h-3/4 w-3/4 items-center justify-center rounded-full border-2 border-white/20 bg-gradient-to-b from-white/15 to-white/5">
             <span className="font-display text-4xl font-black text-white/70">
               {player.jersey}
             </span>
@@ -303,7 +319,7 @@ function Cutout({
 
       {/* name plate */}
       <div
-        className="mt-1.5 w-full origin-center overflow-hidden rounded-sm shadow-lg md:mt-2"
+        className="mt-1.5 w-full max-w-[clamp(9rem,20vw,20rem)] origin-center overflow-hidden rounded-sm shadow-lg md:mt-2"
         style={{
           animation: `plate-in 0.35s ${0.35 + index * 0.16}s ease-out both`,
           background: `linear-gradient(90deg, ${accent.primary}, ${accent.secondary})`,
@@ -316,7 +332,7 @@ function Cutout({
           <span className="truncate text-[9px] font-black tracking-[0.12em] text-white uppercase sm:text-[11px] md:text-sm md:tracking-[0.18em]">
             {player.name.split(" ").slice(-1)[0]}
           </span>
-          <span className="hidden shrink-0 rounded bg-black/40 px-1 text-[9px] font-black text-white/80 sm:inline">
+          <span className="shrink-0 rounded bg-black/40 px-1 text-[9px] font-black text-white/80">
             {player.position}
           </span>
         </div>
@@ -325,13 +341,25 @@ function Cutout({
   )
 }
 
+/** Fixed 1-3-3 broadcast positions on a 3:4 portrait pitch (percent coords).
+ *  GK at the bottom, defenders in the middle band, wingers wide just above
+ *  them, pivot at the top — matches the reference formation board. Values
+ *  keep enough clearance from the edges that the number+name markers never
+ *  clip against the pitch boundary or overlap each other.
+ *  Squad order is GK, 3 defenders, 3 attackers, so index maps directly. */
+const FIXED_133_POSITIONS: { x: number; y: number }[] = [
+  { x: 50, y: 80 }, // GK
+  { x: 31, y: 60 }, { x: 50, y: 53 }, { x: 69, y: 60 }, // defenders
+  { x: 26, y: 37 }, { x: 74, y: 37 }, { x: 50, y: 24 }, // wingers + pivot
+]
+
 function MiniBoard({
   accent,
   squad,
   revealed,
 }: {
   accent: { primary: string; secondary: string }
-  squad: Player[]
+  squad: { player: Player; slot: FormationSlot }[]
   revealed: number
 }) {
   return (
@@ -340,47 +368,66 @@ function MiniBoard({
         Formation
       </div>
       <div
-        className="relative aspect-[3/4] w-full overflow-hidden rounded-sm border border-white/40"
-        style={{ background: `${accent.secondary}` }}
-      >
-        <div className="absolute inset-2 rounded-sm border border-white/40" />
-        <div className="absolute top-1/2 right-2 left-2 h-px bg-white/40" />
-        <div className="absolute top-1/2 left-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/40" />
-        <div className="absolute top-2 left-1/2 h-8 w-20 -translate-x-1/2 border border-t-0 border-white/40" />
-        <div className="absolute bottom-2 left-1/2 h-8 w-20 -translate-x-1/2 border border-b-0 border-white/40" />
-        {squad.map((p, i) => {
-          const pos = POS7[i] ?? { x: 50, y: 50 }
-          const on = i < revealed
-          return (
-            <div
-              key={p.id}
-              className="absolute -translate-x-1/2 -translate-y-1/2 text-center"
-              style={{
-                left: `${pos.x}%`,
-                top: `${pos.y}%`,
-                opacity: on ? 1 : 0.55,
-                transform: `translate(-50%, -50%) scale(${on ? 1.15 : 1})`,
-                transition: "opacity 0.3s, transform 0.3s",
-              }}
-            >
-              <div
-                className="mx-auto flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-black text-black"
-                style={{
-                  backgroundColor: on ? "#ffffff" : "#ffffffaa",
-                  boxShadow: on ? "0 0 10px #fff" : "none",
-                }}
-              >
-                {p.jersey}
-              </div>
-              <div className="mt-0.5 text-[7px] font-bold leading-none text-white uppercase">
-                {p.name.split(" ").slice(-1)[0]}
-              </div>
-            </div>
-          )
-        })}
-      </div>
+  className="relative aspect-[3/4] w-full overflow-hidden rounded-sm border border-white/25 shadow-lg [container-type:inline-size]"
+>
+  {/* Real pitch: green field with white lines, goals, penalty areas. */}
+  <PitchCanvas>
+    {squad.map((row, i) => {
+      const p = row.player
+      // Use the fixed 1-3-3 geometry so the board always reads clean,
+      // regardless of the stored slot coords (which are editor
+      // artifacts and can look scattered).
+      const roleIndex = Math.min(i, FIXED_133_POSITIONS.length - 1)
+      const pos = FIXED_133_POSITIONS[roleIndex]
+      const on = i < revealed
+      
+      // FIX 1: Better last name logic. Drop the first name, keep the rest.
+      // e.g., "Kevin De Bruyne" -> "De Bruyne"
+      const nameParts = p.name.split(" ")
+      const displayName = nameParts.length > 1 
+        ? nameParts.slice(1).join(" ") 
+        : p.name
+
+      return (
+        <div
+          key={p.id}
+          // Removed redundant Tailwind translates since it's handled in the style tag for the animation.
+          // Added flex to keep horizontal centering stable.
+          className="absolute flex flex-col items-center"
+          style={{
+            left: `${pos.x}%`,
+            top: `${pos.y}%`,
+            opacity: on ? 1 : 0.5,
+            transform: `translate(-50%, -50%) scale(${on ? 1.1 : 1})`,
+            transition: "opacity 0.3s, transform 0.3s",
+          }}
+        >
+          {/* Circular Marker */}
+          <div
+            className="flex aspect-square items-center justify-center rounded-full border-[0.5cqw] text-[4cqw] font-display font-black text-black"
+            style={{
+              width: "11cqw",
+              backgroundColor: on ? "#ffffff" : "#ffffffb3",
+              borderColor: on ? "#fff" : "#ffffff55",
+              boxShadow: on ? "0 0 10px #fff" : "none",
+            }}
+          >
+            {p.jersey}
+          </div>
+          
+          {/* FIX 2: Absolutely positioned text so it doesn't skew the circle's vertical center */}
+          <p
+            className="absolute top-full mt-[0.8cqw] max-w-[24cqw] truncate text-[2.9cqw] font-bold leading-none tracking-wide text-white uppercase drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]"
+          >
+            {displayName}
+          </p>
+        </div>
+      )
+    })}
+  </PitchCanvas>
+</div>
       <div className="mt-2 text-center text-[9px] font-black tracking-[0.25em] text-white/85 uppercase">
-        1 GK · 6 Outfield
+        1-3-3 · 1 GK · 3 Def · 3 Att
       </div>
     </div>
   )

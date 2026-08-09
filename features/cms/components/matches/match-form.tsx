@@ -11,6 +11,7 @@ import {
 } from "@/features/cms/schemas/match-schema"
 import { useAuth } from "@/features/auth/hooks/use-auth"
 import { MATCH_STATUS } from "@/generated/enums"
+import { VENUES } from "@/features/cms/lib/venues"
 import type { Match, Team } from "@/features/cms/types/cms-types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -185,12 +186,23 @@ export function MatchForm({ match, teams, onSaved }: MatchFormProps) {
           control={control}
           name="venue"
           render={({ field }) => (
-            <Input
-              {...field}
+            <select
               value={field.value ?? ""}
-              placeholder="e.g. Arena Futsal Hall"
-              autoComplete="off"
-            />
+              onChange={(e) => field.onChange(e.target.value || null)}
+              className={cn(
+                "h-9 w-full rounded-3xl border-transparent bg-input/50 px-3 text-sm",
+                "focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              )}
+            >
+              <option value="" disabled>
+                Select venue
+              </option>
+              {VENUES.map((venue) => (
+                <option key={venue} value={venue}>
+                  {venue}
+                </option>
+              ))}
+            </select>
           )}
         />
         <FieldError

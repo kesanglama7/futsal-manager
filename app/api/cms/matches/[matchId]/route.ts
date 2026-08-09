@@ -22,7 +22,7 @@ export async function GET(
       include: {
         homeTeam: true,
         awayTeam: true,
-        matchTeams: { include: { team: true, formation: true } },
+        matchTeams: { include: { team: true } },
         events: {
           include: { team: true, player: true },
           orderBy: { minute: "asc" },

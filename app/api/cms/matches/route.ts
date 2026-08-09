@@ -3,6 +3,7 @@ import { db } from "@/lib/db"
 import { requireAdmin } from "@/lib/auth-guard"
 import { matchSchema } from "@/features/cms/schemas/match-schema"
 import { MATCH_STATUS } from "@/generated/enums"
+import { DEFAULT_FORMATION } from "@/features/cms/lib/default-formation"
 
 export async function GET(request: Request) {
   const auth = await requireAdmin(request)
@@ -20,7 +21,7 @@ export async function GET(request: Request) {
       include: {
         homeTeam: true,
         awayTeam: true,
-        matchTeams: { include: { team: true, formation: true } },
+        matchTeams: { include: { team: true } },
         _count: { select: { events: true } },
       },
     })
@@ -88,10 +89,11 @@ export async function POST(request: Request) {
         },
       })
 
+      const defaultPositions = JSON.parse(JSON.stringify(DEFAULT_FORMATION))
       await tx.matchTeam.createMany({
         data: [
-          { matchId: created.id, teamId: created.homeTeamId, side: "HOME", positions: [] },
-          { matchId: created.id, teamId: created.awayTeamId, side: "AWAY", positions: [] },
+          { matchId: created.id, teamId: created.homeTeamId, side: "HOME", positions: defaultPositions },
+          { matchId: created.id, teamId: created.awayTeamId, side: "AWAY", positions: defaultPositions },
         ],
       })
 

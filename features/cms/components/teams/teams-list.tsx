@@ -6,7 +6,6 @@ import {
   Pencil,
   Trash2,
   Users,
-  LayoutTemplate,
   Loader2,
 } from "lucide-react"
 
@@ -94,24 +93,11 @@ export function TeamsList({ teams, onEdit, onDeleted }: TeamsListProps) {
                     <Users className="size-4" />
                     {team._count?.roster ?? 0} players
                   </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <LayoutTemplate className="size-4" />
-                    {team._count?.formations ?? 0} formations
-                  </span>
                 </div>
               </CardContent>
               <CardFooter className="flex flex-wrap gap-2">
                 <Button size="sm" variant="outline" render={<Link href={`/cms/teams/${team.id}`} />}>
-                  Roster
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  render={
-                    <Link href={`/cms/teams/${team.id}/formations`} />
-                  }
-                >
-                  Formations
+                  Players
                 </Button>
                 <div className="flex-1" />
                 <Button
@@ -142,7 +128,7 @@ export function TeamsList({ teams, onEdit, onDeleted }: TeamsListProps) {
             <DialogTitle>Delete team</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete "{deleting?.name}"? This will
-              permanently remove the team, its players, and its formations.
+              permanently remove the team and its players.
             </DialogDescription>
           </DialogHeader>
           {error && (

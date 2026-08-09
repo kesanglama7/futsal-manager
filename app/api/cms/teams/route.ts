@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     const teams = await db.team.findMany({
       orderBy: { name: "asc" },
       include: {
-        _count: { select: { roster: true, formations: true } },
+        _count: { select: { roster: true } },
       },
     })
     return NextResponse.json({ teams })

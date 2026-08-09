@@ -20,7 +20,7 @@ export async function GET(
     const team = await db.team.findUnique({
       where: { id: teamId },
       include: {
-        _count: { select: { roster: true, formations: true } },
+        _count: { select: { roster: true } },
       },
     })
 
@@ -115,7 +115,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Team not found" }, { status: 404 })
     }
 
-    // Players and formations cascade via FK onDelete: Cascade
+    // Players cascade via FK onDelete: Cascade
     await db.team.delete({ where: { id: teamId } })
 
     return NextResponse.json({ success: true })

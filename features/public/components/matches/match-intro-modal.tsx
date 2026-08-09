@@ -207,12 +207,9 @@ function TitlePhase({
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-8">
       <FloatingParticles />
-      <div className="animate-in slide-in-from-top-4 font-display text-sm font-bold tracking-[0.5em] text-primary uppercase">
-        Futsal Pro League · Matchday
-      </div>
-      <div className="flex items-center gap-8 md:gap-20">
+      <div className="flex items-center gap-4 sm:gap-8 md:gap-20">
         <TeamCrest team={home} side="left" />
-        <div className="animate-in zoom-in-0 font-display text-7xl font-black text-volt drop-shadow-[0_0_18px_rgba(0,0,0,0.4)] duration-500 md:text-9xl">
+        <div className="animate-in zoom-in-0 font-display text-5xl font-black text-volt drop-shadow-[0_0_18px_rgba(0,0,0,0.4)] duration-500 sm:text-7xl md:text-9xl">
           VS
         </div>
         <TeamCrest team={away} side="right" />
@@ -242,7 +239,7 @@ function TeamCrest({ team, side }: { team: Team; side: "left" | "right" }) {
       } duration-500`}
     >
       <div
-        className="flex h-32 w-32 items-center justify-center rounded-full border-4 md:h-40 md:w-40"
+        className="flex h-20 w-20 items-center justify-center rounded-full border-4 sm:h-32 sm:w-32 md:h-40 md:w-40"
         style={{
           borderColor: accent.primary,
           boxShadow: `0 0 60px ${accent.primary}55`,
@@ -251,19 +248,16 @@ function TeamCrest({ team, side }: { team: Team; side: "left" | "right" }) {
       >
         {logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={logoUrl} alt={team.name} className="h-24 w-24 md:h-32 md:w-32" />
+          <img src={logoUrl} alt={team.name} className="h-14 w-14 sm:h-24 sm:w-24 md:h-32 md:w-32" />
         ) : (
-          <span className="text-4xl font-black text-white md:text-5xl" style={{ textShadow: `0 0 20px ${accent.primary}` }}>
+          <span className="text-2xl font-black text-white sm:text-4xl md:text-5xl" style={{ textShadow: `0 0 20px ${accent.primary}` }}>
             {initialsText}
           </span>
         )}
       </div>
       <div className="text-center">
-        <div className="text-2xl font-black tracking-wider uppercase md:text-3xl">
+        <div className="max-w-28 truncate text-xl font-black tracking-wider uppercase sm:max-w-none sm:text-2xl md:text-3xl">
           {team.name}
-        </div>
-        <div className="text-xs tracking-widest uppercase" style={{ color: accent.primary }}>
-          Futsal Club
         </div>
       </div>
     </div>

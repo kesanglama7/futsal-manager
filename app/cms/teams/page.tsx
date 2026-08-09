@@ -88,7 +88,7 @@ export default function TeamsPage() {
             Team Management
           </h2>
           <p className="text-sm text-muted-foreground">
-            Create teams, manage rosters, and set up formations.
+            Create teams and manage players.
           </p>
         </div>
         <Button onClick={openCreate}>
@@ -120,7 +120,7 @@ export default function TeamsPage() {
           <Shield className="size-10 text-muted-foreground" />
           <h3 className="text-lg font-semibold">No teams yet</h3>
           <p className="text-sm text-muted-foreground">
-            Create your first team to start managing rosters and formations.
+            Create your first team to start managing its roster.
           </p>
           <Button onClick={openCreate} className="mt-2">
             <Plus />
@@ -144,7 +144,7 @@ export default function TeamsPage() {
             <SheetDescription>
               {editing
                 ? "Update the team name or logo."
-                : "Create a new team to manage its roster and formations."}
+                : "Create a new team to manage its roster."}
             </SheetDescription>
           </SheetHeader>
           <TeamForm team={editing} onSaved={handleSaved} />

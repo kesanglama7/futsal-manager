@@ -114,7 +114,12 @@ export function MatchResultSummary({
   const mvp = topPlayer && topGoals > 0 && !sharedTop ? topPlayer : null
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 overflow-y-auto p-6 md:gap-7 md:p-8">
+    <div className="absolute inset-0 flex flex-col items-center overflow-y-auto p-6 md:gap-7 md:p-8">
+      {/* Auto-margins on the first/last child center the group when there's
+          room, but degrade to normal top-padding when the content is taller
+          than the viewport — so the header never gets cropped off on small
+          screens (flexbox justify-center would clip the top edge). */}
+      <div className="my-auto flex w-full flex-col items-center gap-5 md:gap-7">
       {/* Header */}
       <div className="animate-in slide-in-from-top-4 text-xs font-black tracking-[0.5em] text-primary uppercase">
         Full Time
@@ -322,6 +327,7 @@ export function MatchResultSummary({
             </span>
           </div>
         )}
+      </div>
       </div>
     </div>
   )

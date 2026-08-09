@@ -400,7 +400,6 @@ export const ModelName = {
   User: 'User',
   Team: 'Team',
   Player: 'Player',
-  Formation: 'Formation',
   Match: 'Match',
   MatchTeam: 'MatchTeam',
   MatchEvent: 'MatchEvent'
@@ -419,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "team" | "player" | "formation" | "match" | "matchTeam" | "matchEvent"
+    modelProps: "user" | "team" | "player" | "match" | "matchTeam" | "matchEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -642,80 +641,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.PlayerCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PlayerCountAggregateOutputType> | number
-        }
-      }
-    }
-    Formation: {
-      payload: Prisma.$FormationPayload<ExtArgs>
-      fields: Prisma.FormationFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.FormationFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormationPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.FormationFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormationPayload>
-        }
-        findFirst: {
-          args: Prisma.FormationFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormationPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.FormationFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormationPayload>
-        }
-        findMany: {
-          args: Prisma.FormationFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormationPayload>[]
-        }
-        create: {
-          args: Prisma.FormationCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormationPayload>
-        }
-        createMany: {
-          args: Prisma.FormationCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.FormationCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormationPayload>[]
-        }
-        delete: {
-          args: Prisma.FormationDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormationPayload>
-        }
-        update: {
-          args: Prisma.FormationUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormationPayload>
-        }
-        deleteMany: {
-          args: Prisma.FormationDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.FormationUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.FormationUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormationPayload>[]
-        }
-        upsert: {
-          args: Prisma.FormationUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormationPayload>
-        }
-        aggregate: {
-          args: Prisma.FormationAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateFormation>
-        }
-        groupBy: {
-          args: Prisma.FormationGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.FormationGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.FormationCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.FormationCountAggregateOutputType> | number
         }
       }
     }
@@ -1025,19 +950,6 @@ export const PlayerScalarFieldEnum = {
 export type PlayerScalarFieldEnum = (typeof PlayerScalarFieldEnum)[keyof typeof PlayerScalarFieldEnum]
 
 
-export const FormationScalarFieldEnum = {
-  id: 'id',
-  teamId: 'teamId',
-  type: 'type',
-  name: 'name',
-  positions: 'positions',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type FormationScalarFieldEnum = (typeof FormationScalarFieldEnum)[keyof typeof FormationScalarFieldEnum]
-
-
 export const MatchScalarFieldEnum = {
   id: 'id',
   homeTeamId: 'homeTeamId',
@@ -1059,7 +971,6 @@ export const MatchTeamScalarFieldEnum = {
   matchId: 'matchId',
   teamId: 'teamId',
   side: 'side',
-  formationId: 'formationId',
   positions: 'positions',
   bench: 'bench',
   createdAt: 'createdAt',
@@ -1199,34 +1110,6 @@ export type ListEnumPOSITIONFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 
 
 /**
- * Reference to a field of type 'FORMATION_TYPE'
- */
-export type EnumFORMATION_TYPEFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FORMATION_TYPE'>
-    
-
-
-/**
- * Reference to a field of type 'FORMATION_TYPE[]'
- */
-export type ListEnumFORMATION_TYPEFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FORMATION_TYPE[]'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
-    
-
-
-/**
  * Reference to a field of type 'MATCH_STATUS'
  */
 export type EnumMATCH_STATUSFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MATCH_STATUS'>
@@ -1251,6 +1134,20 @@ export type EnumMATCH_SIDEFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
  * Reference to a field of type 'MATCH_SIDE[]'
  */
 export type ListEnumMATCH_SIDEFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MATCH_SIDE[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -1435,7 +1332,6 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   team?: Prisma.TeamOmit
   player?: Prisma.PlayerOmit
-  formation?: Prisma.FormationOmit
   match?: Prisma.MatchOmit
   matchTeam?: Prisma.MatchTeamOmit
   matchEvent?: Prisma.MatchEventOmit

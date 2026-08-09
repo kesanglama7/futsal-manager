@@ -32,7 +32,7 @@ export default function UserPage() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Your team and formations will be shown here soon.
+            Your team will be shown here soon.
           </p>
         </CardContent>
       </Card>

@@ -27,10 +27,21 @@ export function MatchPitchPlayer({
   onClick?: () => void
 }) {
   const accent = teamAccent(team)
+  // Fluid marker sizing: the marker scales with the viewport/field instead of
+  // staying a fixed px circle. Kept per-tier so call sites keep control of the
+  // relative size while the absolute size adapts to the screen.
   const circleSize =
-    size === "sm" ? "size-8" : size === "lg" ? "size-14" : "size-10"
+    size === "sm"
+      ? "w-[clamp(1.75rem,3.5vw,2.5rem)] aspect-square"
+      : size === "lg"
+        ? "w-[clamp(3rem,6vw,4.5rem)] aspect-square"
+        : "w-[clamp(2.25rem,4.5vw,3.25rem)] aspect-square"
   const textSize =
-    size === "sm" ? "text-[10px]" : size === "lg" ? "text-base" : "text-xs"
+    size === "sm"
+      ? "text-[clamp(0.55rem,1.2vw,0.8rem)]"
+      : size === "lg"
+        ? "text-[clamp(1rem,2.2vw,1.4rem)]"
+        : "text-[clamp(0.7rem,1.5vw,1rem)]"
   const photoUrl = player ? resolveMediaUrl(player.photo) : null
 
   return (
@@ -67,7 +78,7 @@ export function MatchPitchPlayer({
         )}
       </div>
       {player && (
-        <div className="pointer-events-none mt-0.5 text-center text-[10px] font-semibold whitespace-nowrap text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+        <div className="pointer-events-none mt-0.5 text-center text-[clamp(0.55rem,1.1vw,0.8rem)] font-semibold whitespace-nowrap text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
           {player.name.split(" ").slice(-1)[0]}
         </div>
       )}

@@ -19,7 +19,6 @@ export const playerSchema = z.object({
     POSITION.PIVOT,
   ]),
   photo: z.string().nullable().optional(),
-  rating: z.number().int().min(1).max(99).default(70),
   pace: z.number().int().min(1).max(99).default(65),
   shooting: z.number().int().min(1).max(99).default(65),
   passing: z.number().int().min(1).max(99).default(65),
